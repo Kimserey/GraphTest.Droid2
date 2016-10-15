@@ -142,13 +142,13 @@ namespace BoxRendererTest.Droid
 					y: y - (textPaint.Ascent() / 2f),
 					paint: textPaint);
 
-				if (v.Item2 % 2 > 0 && v.Item2 < numberOfSections)
-					canvas.DrawRect(
-						left: horizontal.XStart,
-						top: y - sectionWidth,
-						right: horizontal.XStop,
-						bottom: y,
-						paint: bandsPaint);
+				//if (v.Item2 % 2 > 0 && v.Item2 < numberOfSections)
+				canvas.DrawRect(
+					left: horizontal.XStart,
+					top: y - density / 2f,
+					right: horizontal.XStop,
+					bottom: y + density / 2f,
+					paint: bandsPaint);
 			}
 		}
 
@@ -226,7 +226,7 @@ namespace BoxRendererTest.Droid
 
 			bandsPaint = new Paint
 			{
-				Color = Color.ParseColor("#EEEEEE")
+				Color = Color.ParseColor("#BDBDBD")
 			};
 		}
 	}

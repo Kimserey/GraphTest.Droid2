@@ -71,12 +71,14 @@ namespace BoxRendererTest
 			var data =
 				new List<Data> {
 					new Data { X = "Jan", Y = 100.05 },
-					new Data { X = "Feb", Y = 100.05 },
-					new Data { X = "Mar", Y = 100.05 },
-					new Data { X = "Jun", Y = 100.05 },
-					new Data { X = "Jul", Y = 100.05 },
-					new Data { X = "Aug", Y = 100.05 },
-					new Data { X = "Sep", Y = 100.05 }
+					new Data { X = "Feb", Y = 250.15 },
+					new Data { X = "Mar", Y = 325 },
+					new Data { X = "Jun", Y = 311.25 },
+					new Data { X = "Jul", Y = 320.15 },
+					new Data { X = "Aug", Y = 287 },
+					new Data { X = "Sep", Y = 300.05 },
+					new Data { X = "Oct", Y = 250.05 },
+					new Data { X = "Nov", Y = 320.05 }
 			};
 
 			var list = new ListView
