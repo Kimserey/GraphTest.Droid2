@@ -131,7 +131,7 @@ namespace BoxRendererTest
 					paint: paint);
 			}
 
-			// Draw horizontal bands
+			// Draws horizontal bands
 			paint.Reset();
 			paint.Color = Color.ParseColor("#36acd4");
 			for (int i = vertical.Count - 1; i >= 0; i = i - 2)
@@ -167,7 +167,7 @@ namespace BoxRendererTest
 					paint: paint);
 			}
 
-			// Draw main line
+			// Draws main line
 			paint.Reset();
 			paint.StrokeWidth = 3f * density;
 			paint.Color = Color.ParseColor("#ededed");
@@ -188,7 +188,7 @@ namespace BoxRendererTest
 					paint: paint);
 			}
 
-			// Draw market text
+			// Draws marker shadow
 			paint.Reset();
 			paint.TextAlign = Paint.Align.Center;
 			paint.TextSize = 14f * density;
@@ -204,7 +204,7 @@ namespace BoxRendererTest
 					paint: paint);
 			}
 
-			// Draw marker text
+			// Draws marker text
 			paint.Reset();
 			paint.TextAlign = Paint.Align.Center;
 			paint.TextSize = 14f * density;
