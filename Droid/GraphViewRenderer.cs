@@ -60,9 +60,8 @@ namespace BoxRendererTest
 
 		static void DrawPlot(Canvas canvas, int viewWidth, int viewHeight, Padding padding, float density, Paint paint, IEnumerable<Data> items)
 		{
+			// Set text size to measure text
 			paint.TextSize = 10f * density;
-			paint.Color = Color.ParseColor("#ededed");
-			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
 
 			var longestYLabel =
 				items.Select(i => i.X)
@@ -74,7 +73,7 @@ namespace BoxRendererTest
 			// - Bottom: bottom padding + text size
 			var plotBoundaries = new PlotBoundaries
 			{
-				Left = padding.Left * density + paint.MeasureText(longestYLabel) + density,
+				Left = padding.Left * density + paint.MeasureText(longestYLabel) + 3f * density,
 				Right = viewWidth - padding.Right * density,
 				Top = padding.Top * density,
 				Bottom = viewHeight - padding.Bottom * density - paint.TextSize
@@ -102,33 +101,6 @@ namespace BoxRendererTest
 				var y = (float)l.Item2 * plotHeight / vertical.Max;
 
 				points.Add(Tuple.Create(x, plotBoundaries.Bottom - y, l.Item2));
-			}
-
-			// Draws X axis labels
-			paint.TextAlign = Paint.Align.Left;
-			foreach (Tuple<string, int> l in items.Select((Data l, int index) => Tuple.Create(l.X, index)))
-			{
-				var x = horizontal.Width * (l.Item2 + 1f / 2f) + plotBoundaries.Left;
-				var halfedTextSize = paint.MeasureText(l.Item1) / 2f;
-
-				canvas.DrawText(
-					text: l.Item1,
-					x: x - halfedTextSize,
-					y: plotBoundaries.Right + paint.TextSize,
-					paint: paint);
-			}
-
-			// Draw Y axis labels
-			paint.TextAlign = Paint.Align.Center;
-			for (int i = 0; i < vertical.Count; i++)
-			{ 
-				var y = plotBoundaries.Bottom - vertical.Width * i;
-
-				canvas.DrawText(
-					text: (i * 100).ToString(),
-					x: plotBoundaries.Left - 2 * density,
-					y: y - (paint.TextSize / 2f),
-					paint: paint);
 			}
 
 			// Draws horizontal bands
@@ -220,6 +192,37 @@ namespace BoxRendererTest
 					paint: paint);
 			}
 
+			// Draws X axis labels
+			paint.Reset();
+			paint.TextAlign = Paint.Align.Center;
+			paint.TextSize = 10f * density;
+			paint.Color = Color.ParseColor("#ededed");
+			foreach (var l in items.Select((Data l, int index) => Tuple.Create(l.X, index)))
+			{
+				var x = horizontal.Width * (l.Item2 + 1f / 2f) + plotBoundaries.Left;
+
+				canvas.DrawText(
+					text: l.Item1,
+					x: x,
+					y: plotBoundaries.Bottom + paint.TextSize,
+					paint: paint);
+			}
+
+			// Draw Y axis labels
+			paint.Reset();
+			paint.TextAlign = Paint.Align.Right;
+			paint.TextSize = 10f * density;
+			paint.Color = Color.ParseColor("#ededed");
+			for (int i = 0; i < vertical.Count; i++)
+			{
+				var y = plotBoundaries.Bottom - vertical.Width * i;
+
+				canvas.DrawText(
+					text: (i * 100).ToString(),
+					x: plotBoundaries.Left - 3f * density,
+					y: y - (paint.TextSize / 2f),
+					paint: paint);
+			}
 
 			// Draws X and Y axis lines
 			paint.Reset();
