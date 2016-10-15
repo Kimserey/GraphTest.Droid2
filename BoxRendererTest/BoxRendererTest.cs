@@ -6,30 +6,12 @@ using Xamarin.Forms;
 
 namespace BoxRendererTest
 {
-	public static class CustomColors {
-		public static string LightBlue = "#27B4E8";
-	}
-
 	public class Line
 	{
 		public float XStart { get; set; }
 		public float XStop { get; set; }
 		public float YStart { get; set; }
 		public float YStop { get; set; }
-	}
-
-	public class Padding
-	{
-		public float Left { get; set; }
-		public float Right { get; set; }
-		public float Top { get; set; }
-		public float Bottom { get; set; }
-	}
-
-	public class Data
-	{
-		public string X { get; set; }
-		public double Y { get; set; }
 	}
 
 	public class CustomCell : ViewCell
@@ -44,27 +26,6 @@ namespace BoxRendererTest
 			x.SetBinding(Label.TextProperty, "X");
 			y.SetBinding(Label.TextProperty, "Y");
 			this.View = layout;
-		}
-	}
-
-	public class GraphView : BoxView
-	{
-		public GraphView()
-		{
-			this.BackgroundColor = Color.FromHex(CustomColors.LightBlue);
-		}
-
-		public static readonly BindableProperty DataProperty =
-			  BindableProperty.Create(
-				  propertyName: "Data",
-				  returnType: typeof(IList<Data>),
-				  declaringType: typeof(GraphView),
-				  defaultValue:new List<Data>());
-
-		public IList<Data> Data
-		{
-			get { return (IList<Data>)GetValue(DataProperty); }
-			set { SetValue(DataProperty, value); }
 		}
 	}
 
@@ -93,7 +54,8 @@ namespace BoxRendererTest
 			};
 
 			var graph = new GraphView { 
-				Data = data
+				Data = data,
+				BackgroundColor = Color.FromHex(CustomColors.LightBlue)
 			};
 
 			var layout = new AbsoluteLayout();
@@ -103,7 +65,7 @@ namespace BoxRendererTest
 
 			var content = new ContentPage
 			{
-				Title = "Test",
+				Title = "My expenses",
 				Content = layout
 			};
 

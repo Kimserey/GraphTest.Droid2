@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoxRendererTest", "BoxRende
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoxRendererTest.Droid", "Droid\BoxRendererTest.Droid.csproj", "{23C11CCB-98F1-4D53-BF23-7E7901EBDC9D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{9F413445-3CDA-4DB0-8C3E-A4367435046E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,5 +21,9 @@ Global
 		{23C11CCB-98F1-4D53-BF23-7E7901EBDC9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23C11CCB-98F1-4D53-BF23-7E7901EBDC9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23C11CCB-98F1-4D53-BF23-7E7901EBDC9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F413445-3CDA-4DB0-8C3E-A4367435046E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F413445-3CDA-4DB0-8C3E-A4367435046E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F413445-3CDA-4DB0-8C3E-A4367435046E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F413445-3CDA-4DB0-8C3E-A4367435046E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
