@@ -6,6 +6,10 @@ using Xamarin.Forms;
 
 namespace BoxRendererTest
 {
+	public static class CustomColors {
+		public static string LightBlue = "#27B4E8";
+	}
+
 	public class Line
 	{
 		public float XStart { get; set; }
@@ -47,7 +51,7 @@ namespace BoxRendererTest
 	{
 		public GraphView()
 		{
-			this.BackgroundColor = Color.Accent;
+			this.BackgroundColor = Color.FromHex(CustomColors.LightBlue);
 		}
 
 		public static readonly BindableProperty DataProperty =
@@ -84,7 +88,8 @@ namespace BoxRendererTest
 			var list = new ListView
 			{
 				ItemsSource = data,
-				ItemTemplate = new DataTemplate(typeof(CustomCell))
+				ItemTemplate = new DataTemplate(typeof(CustomCell)),
+				BackgroundColor = Color.White
 			};
 
 			var graph = new GraphView { 

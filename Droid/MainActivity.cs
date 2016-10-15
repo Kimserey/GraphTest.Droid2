@@ -142,13 +142,13 @@ namespace BoxRendererTest.Droid
 					y: y - (textPaint.Ascent() / 2f),
 					paint: textPaint);
 
-				//if (v.Item2 % 2 > 0 && v.Item2 < numberOfSections)
-				canvas.DrawRect(
-					left: horizontal.XStart,
-					top: y - density / 2f,
-					right: horizontal.XStop,
-					bottom: y + density / 2f,
-					paint: bandsPaint);
+				if (v.Item2 % 2 > 0 && v.Item2 < numberOfSections)
+					canvas.DrawRect(
+						left: horizontal.XStart,
+						top: y - sectionWidth,
+						right: horizontal.XStop,
+						bottom: y,
+						paint: bandsPaint);
 			}
 		}
 
@@ -166,6 +166,27 @@ namespace BoxRendererTest.Droid
 				points.Add(Tuple.Create(x, vertical.YStop - y, l.Item2));
 			}
 
+			// shadow line drawing
+			linePaint.Color = Color.ParseColor("#1A7596");
+			for (int i = 0; i < points.Count; i++)
+			{
+				if (i < points.Count - 1)
+					canvas.DrawLine(
+						   points[i].Item1,
+						   points[i].Item2 + 2f * density,
+						   points[i + 1].Item1,
+						   points[i + 1].Item2 + 2f * density,
+						   linePaint);
+
+				canvas.DrawCircle(
+					cx: points[i].Item1,
+					cy: points[i].Item2 + 2f * density,
+					radius: 5 * density,
+					paint: linePaint);
+			}
+
+			// main line drawing
+			linePaint.Color = Color.ParseColor("#FFFFFF");
 			for (int i = 0; i < points.Count; i++)
 			{
 				if (i < points.Count - 1)
@@ -176,17 +197,23 @@ namespace BoxRendererTest.Droid
 						points[i + 1].Item2,
 						linePaint);
 
-				//canvas.DrawCircle(
-				//	cx: points[i].Item1,
-				//	cy: points[i].Item2,
-				//	radius: 5 * density,
-				//	paint: markersPaint);
+				canvas.DrawCircle(
+					cx: points[i].Item1,
+					cy: points[i].Item2,
+					radius: 5 * density,
+					paint: linePaint);
+			}
 
-				//canvas.DrawText(
-				//	text: points[i].Item3.ToString(),
-				//	x: points[i].Item1,
-				//	y: points[i].Item2,
-				//	paint: valuePaint);
+			// text drawing
+			linePaint.TextSize = 16f * density;
+			linePaint.Color = Color.ParseColor("#FFFFFF");
+			for (int i = 0; i < points.Count; i++)
+			{
+				canvas.DrawText(
+					text: points[i].Item3.ToString(),
+					x: points[i].Item1,
+					y: points[i].Item2 - 2f * density,
+					paint: valuePaint);
 			}
 		}
 
@@ -226,7 +253,7 @@ namespace BoxRendererTest.Droid
 
 			bandsPaint = new Paint
 			{
-				Color = Color.ParseColor("#BDBDBD")
+				Color = Color.ParseColor("#2FA2CD")
 			};
 		}
 	}
