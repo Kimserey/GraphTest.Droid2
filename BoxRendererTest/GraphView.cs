@@ -27,7 +27,7 @@ namespace BoxRendererTest
 				  propertyName: "Padding",
 				  returnType: typeof(Padding),
 				  declaringType: typeof(GraphView),
-				  defaultValue: new Padding { Bottom = 10, Left = 10, Right = 10, Top = 10 });
+				  defaultValue: new Padding { Bottom = 5, Left = 5, Right = 10, Top = 10 });
 
 		public Padding Padding
 		{
