@@ -12,8 +12,8 @@ namespace BoxRendererTest
 		{
 			MainPage = new TabbedPage { 
 				Children = { 
-					new GraphPage(),
-					new ContentPage { Content = new BoxClip() }
+					new ContentPage { Title = "Box clip", Content = new BoxClip() },
+					new GraphPage()
 				}
 			};
 		}
