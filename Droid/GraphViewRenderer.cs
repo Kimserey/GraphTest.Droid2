@@ -21,14 +21,17 @@ using BoxRendererTest;
 [assembly: ExportRenderer(typeof(GraphView), typeof(GraphViewRenderer))]
 namespace BoxRendererTest
 {
+	public class PlotBoundaries
+	{
+		public float Left { get; set; }
+		public float Right { get; set; }
+		public float Top { get; set; }
+		public float Bottom { get; set; }
+	}
+
 	public class GraphViewRenderer : BoxRenderer
 	{
 		Paint paint = new Paint();
-
-		protected override void OnElementChanged(ElementChangedEventArgs<BoxView> e)
-		{
-			base.OnElementChanged(e);
-		}
 
 		protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
@@ -57,77 +60,73 @@ namespace BoxRendererTest
 
 		static void DrawPlot(Canvas canvas, int viewWidth, int viewHeight, Padding padding, float density, Paint paint, IEnumerable<Data> items)
 		{
-			var horizontalL = new Line
-			{
-				XStart = padding.Left * density,
-				XStop = viewWidth - padding.Right * density,
-				YStart = viewHeight - padding.Bottom * density,
-				YStop = viewHeight - padding.Bottom * density
-			};
+			paint.TextSize = 10f * density;
+			paint.Color = Color.ParseColor("#ededed");
+			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
 
+			var longestYLabel =
+				items.Select(i => i.X)
+					 .OrderByDescending(i => i)
+					 .FirstOrDefault();
 
-			var verticalL = new Line
+			// Computes plot boundaries
+			// - Left: left padding + maximum text lenght + 1dp
+			// - Bottom: bottom padding + text size
+			var plotBoundaries = new PlotBoundaries
 			{
-				XStart = padding.Left * density,
-				XStop = padding.Left * density,
-				YStart = padding.Top * density,
-				YStop = viewHeight - padding.Bottom * density
+				Left = padding.Left * density + paint.MeasureText(longestYLabel) + density,
+				Right = viewWidth - padding.Right * density,
+				Top = padding.Top * density,
+				Bottom = viewHeight - padding.Bottom * density - paint.TextSize
 			};
+			var plotWidth = plotBoundaries.Right - plotBoundaries.Left;
+			var plotHeight = plotBoundaries.Bottom - plotBoundaries.Top;
 
 			var horizontal = new Section
 			{
-				Width = (horizontalL.XStop - horizontalL.XStart) / items.Count(),
+				Width = plotWidth / items.Count(),
 				Count = items.Count()
-				                                                        
 			};
-
 			var vertical = new Section
 			{
 				Max = (int)Math.Ceiling(items.Max(i => i.Y) / 100f) * 100f,
 				Count = (int)Math.Ceiling(items.Select(i => i.Y).Max() / 100),
-				Width = (verticalL.YStop - verticalL.YStart) / ((int)Math.Ceiling(items.Select(i => i.Y).Max() / 100))
+				Width = plotHeight / ((int)Math.Ceiling(items.Select(i => i.Y).Max() / 100))
 			};
 
-
+			// Calculates all the data coordinates
 			var points = new List<Tuple<float, float, double>>();
 			foreach (var l in items.Select((l, index) => Tuple.Create(l.X, l.Y, index)))
 			{
-				var x = horizontal.Width * (l.Item3 + 1f / 2f) + horizontalL.XStart;
-				var y = (float)l.Item2 * (verticalL.YStop - verticalL.YStart) / vertical.Max;
+				var x = horizontal.Width * (l.Item3 + 1f / 2f) + plotBoundaries.Left;
+				var y = (float)l.Item2 * plotHeight / vertical.Max;
 
-				points.Add(Tuple.Create(x, verticalL.YStop - y, l.Item2));
+				points.Add(Tuple.Create(x, plotBoundaries.Bottom - y, l.Item2));
 			}
 
 			// Draws X axis labels
-			paint.Reset();
 			paint.TextAlign = Paint.Align.Left;
-			paint.TextSize = 9 * density;
-			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
-			paint.Color = Color.ParseColor("#ededed");
 			foreach (Tuple<string, int> l in items.Select((Data l, int index) => Tuple.Create(l.X, index)))
 			{
-				var x = horizontal.Width * (l.Item2 + 1f / 2f) + horizontalL.XStart;
+				var x = horizontal.Width * (l.Item2 + 1f / 2f) + plotBoundaries.Left;
 				var halfedTextSize = paint.MeasureText(l.Item1) / 2f;
 
 				canvas.DrawText(
 					text: l.Item1,
 					x: x - halfedTextSize,
-					y: horizontalL.YStart + paint.TextSize,
+					y: plotBoundaries.Right + paint.TextSize,
 					paint: paint);
 			}
 
 			// Draw Y axis labels
-			paint.Reset();
 			paint.TextAlign = Paint.Align.Center;
-			paint.TextSize = 9 * density;
-			paint.Color = Color.ParseColor("#ededed");
 			for (int i = 0; i < vertical.Count; i++)
 			{ 
-				var y = verticalL.YStop - vertical.Width * i;
+				var y = plotBoundaries.Bottom - vertical.Width * i;
 
 				canvas.DrawText(
 					text: (i * 100).ToString(),
-					x: verticalL.XStart - 2 * density,
+					x: plotBoundaries.Left - 2 * density,
 					y: y - (paint.TextSize / 2f),
 					paint: paint);
 			}
@@ -137,12 +136,12 @@ namespace BoxRendererTest
 			paint.Color = Color.ParseColor("#36acd4");
 			for (int i = vertical.Count - 1; i >= 0; i = i - 2)
 			{
-				var y = verticalL.YStop - vertical.Width * i;
+				var y = plotBoundaries.Bottom - vertical.Width * i;
 
 				canvas.DrawRect(
-					left: horizontalL.XStart,
+					left: plotBoundaries.Left,
 					top: y - vertical.Width,
-					right: horizontalL.XStop,
+					right: plotBoundaries.Right,
 					bottom: y,
 					paint: paint);
 			}
@@ -191,8 +190,8 @@ namespace BoxRendererTest
 
 			// Draw market text
 			paint.Reset();
-			paint.TextSize = 14f * density;
 			paint.TextAlign = Paint.Align.Center;
+			paint.TextSize = 14f * density;
 			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
 			paint.Color = Color.ParseColor("#1A7596");
 			for (int i = 0; i < points.Count; i++)
@@ -207,8 +206,8 @@ namespace BoxRendererTest
 
 			// Draw marker text
 			paint.Reset();
-			paint.TextSize = 14f * density;
 			paint.TextAlign = Paint.Align.Center;
+			paint.TextSize = 14f * density;
 			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
 			paint.Color = Color.ParseColor("#FFFFFF");
 			for (int i = 0; i < points.Count; i++)
@@ -226,8 +225,18 @@ namespace BoxRendererTest
 			paint.Reset();
 			paint.StrokeWidth = 2f * density;
 			paint.Color = Color.ParseColor("#ededed");
-			canvas.DrawLine(horizontalL.XStart, horizontalL.YStart, horizontalL.XStop, horizontalL.YStop, paint);
-			canvas.DrawLine(verticalL.XStart, verticalL.YStart, verticalL.XStop, verticalL.YStop, paint);
+			canvas.DrawLine(
+				plotBoundaries.Left,
+				plotBoundaries.Bottom, 
+				plotBoundaries.Right, 
+				plotBoundaries.Bottom, 
+				paint);
+			canvas.DrawLine(
+				plotBoundaries.Left, 
+                plotBoundaries.Top, 
+				plotBoundaries.Left, 
+				plotBoundaries.Bottom, 
+				paint);
 		}
 	}
 }
