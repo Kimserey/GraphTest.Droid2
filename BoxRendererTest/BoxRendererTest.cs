@@ -43,13 +43,18 @@ namespace BoxRendererTest
 		}
 	}
 
-	public class Drawing : BoxView
+	public class GraphView : BoxView
 	{
+		public GraphView()
+		{
+			this.BackgroundColor = Color.Accent;
+		}
+
 		public static readonly BindableProperty DataProperty =
 			  BindableProperty.Create(
 				  propertyName: "Data",
 				  returnType: typeof(IList<Data>),
-				  declaringType: typeof(Drawing),
+				  declaringType: typeof(GraphView),
 				  defaultValue:new List<Data>());
 
 		public IList<Data> Data
@@ -63,31 +68,30 @@ namespace BoxRendererTest
 	{
 		public App()
 		{
+			var data =
+				new List<Data> {
+					new Data { X = "Jan", Y = 100.05 },
+					new Data { X = "Feb", Y = 100.05 },
+					new Data { X = "Mar", Y = 100.05 },
+					new Data { X = "Jun", Y = 100.05 },
+					new Data { X = "Jul", Y = 100.05 },
+					new Data { X = "Aug", Y = 100.05 },
+					new Data { X = "Sep", Y = 100.05 }
+			};
+
 			var list = new ListView
 			{
-				ItemsSource = new List<Data> {
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 },
-					new Data { X = "Hellow", Y = 100.05 }
-				},
+				ItemsSource = data,
 				ItemTemplate = new DataTemplate(typeof(CustomCell))
+			};
+
+			var graph = new GraphView { 
+				Data = data
 			};
 
 			var layout = new AbsoluteLayout();
 
-			layout.Children.Add(new Drawing(), new Rectangle(0, 0, 1, .3), AbsoluteLayoutFlags.All);
+			layout.Children.Add(graph, new Rectangle(0, 0, 1, .3), AbsoluteLayoutFlags.All);
 			layout.Children.Add(list, new Rectangle(0, 1, 1, .7), AbsoluteLayoutFlags.All);
 
 			var content = new ContentPage

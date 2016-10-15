@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ComponentModel;
 
 using Android.App;
 using Android.Content;
@@ -18,10 +19,10 @@ using Color = Android.Graphics.Color;
 using BoxRendererTest;
 using BoxRendererTest.Droid;
 
-[assembly: ExportRenderer(typeof(Drawing), typeof(DrawingRenderer))]
+[assembly: ExportRenderer(typeof(GraphView), typeof(GraphViewRenderer))]
 namespace BoxRendererTest.Droid
 {
-	public class DrawingRenderer : BoxRenderer
+	public class GraphViewRenderer : BoxRenderer
 	{
 
 		Paint textPaint;
@@ -29,20 +30,31 @@ namespace BoxRendererTest.Droid
 		Paint bandsPaint;
 		Paint linePaint;
 		Paint markersPaint;
-		IList<Data> data;
 		Padding padding;
 
 		protected override void OnElementChanged(ElementChangedEventArgs<BoxView> e)
 		{
 			base.OnElementChanged(e);
-			Initialise();
+		}
+
+		protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			base.OnElementPropertyChanged(sender, e);
+
+			if (e.PropertyName == GraphView.DataProperty.PropertyName)
+			{
+				this.Invalidate();
+			}
 		}
 
 		protected override void OnDraw(Canvas canvas)
 		{
 			base.OnDraw(canvas);
+			Initialise();
 
-			DrawingRenderer.DrawChart(padding,
+			var data = ((GraphView)Element).Data;
+			
+			GraphViewRenderer.DrawChart(padding,
 						   canvas,
 						   linePaint,
 						   markersPaint,
@@ -164,17 +176,17 @@ namespace BoxRendererTest.Droid
 						points[i + 1].Item2,
 						linePaint);
 
-				canvas.DrawCircle(
-					cx: points[i].Item1,
-					cy: points[i].Item2,
-					radius: 5 * density,
-					paint: markersPaint);
+				//canvas.DrawCircle(
+				//	cx: points[i].Item1,
+				//	cy: points[i].Item2,
+				//	radius: 5 * density,
+				//	paint: markersPaint);
 
-				canvas.DrawText(
-					text: points[i].Item3.ToString(),
-					x: points[i].Item1,
-					y: points[i].Item2,
-					paint: valuePaint);
+				//canvas.DrawText(
+				//	text: points[i].Item3.ToString(),
+				//	x: points[i].Item1,
+				//	y: points[i].Item2,
+				//	paint: valuePaint);
 			}
 		}
 
@@ -182,28 +194,28 @@ namespace BoxRendererTest.Droid
 		{
 			padding = new Padding
 			{
-				Left = 40 * Resources.DisplayMetrics.Density,
-				Right = 20 * Resources.DisplayMetrics.Density,
-				Bottom = 30 * Resources.DisplayMetrics.Density,
-				Top = 20 * Resources.DisplayMetrics.Density
+				Left = 20 * Resources.DisplayMetrics.Density,
+				Right = 10 * Resources.DisplayMetrics.Density,
+				Bottom = 20 * Resources.DisplayMetrics.Density,
+				Top = 10 * Resources.DisplayMetrics.Density
 			};
 
 			textPaint = new Paint
 			{
-				TextSize = 14 * Resources.DisplayMetrics.Density,
-				Color = Color.ParseColor("#37474F")
+				TextSize = 10 * Resources.DisplayMetrics.Density,
+				Color = Color.ParseColor("#FFFFFF")
 			};
 
 			axesPaint = new Paint
 			{
-				StrokeWidth = 2 * Resources.DisplayMetrics.Density,
-				Color = Color.ParseColor("#37474F")
+				StrokeWidth = 1 * Resources.DisplayMetrics.Density,
+				Color = Color.ParseColor("#FFFFFF")
 			};
 
 			linePaint = new Paint
 			{
 				StrokeWidth = 2 * Resources.DisplayMetrics.Density,
-				Color = Color.ParseColor("#FF5722")
+				Color = Color.ParseColor("#FFFFFF")
 			};
 
 			markersPaint = new Paint
@@ -215,16 +227,6 @@ namespace BoxRendererTest.Droid
 			bandsPaint = new Paint
 			{
 				Color = Color.ParseColor("#EEEEEE")
-			};
-
-			data = new List<Data> {
-				new Data { X = "JAN", Y = 266.7 },
-				new Data { X = "FEB", Y = 250.4 },
-				new Data { X = "MAR", Y = 330 },
-				new Data { X = "JUN", Y = 126 },
-				new Data { X = "JUL", Y = 220 },
-				new Data { X = "AUG", Y = 230 },
-				new Data { X = "SEP", Y = 266 }
 			};
 		}
 	}
