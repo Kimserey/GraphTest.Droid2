@@ -160,38 +160,6 @@ namespace BoxRendererTest
 					paint: paint);
 			}
 
-			// Draws marker shadow
-			paint.Reset();
-			paint.TextAlign = Paint.Align.Center;
-			paint.TextSize = 14f * density;
-			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
-			paint.Color = Color.ParseColor("#1A7596");
-			for (int i = 0; i < points.Count; i++)
-			{
-				var text = points[i].Item3.ToString();
-				canvas.DrawText(
-					text: text,
-					x: points[i].Item1 + density,
-					y: points[i].Item2,
-					paint: paint);
-			}
-
-			// Draws marker text
-			paint.Reset();
-			paint.TextAlign = Paint.Align.Center;
-			paint.TextSize = 14f * density;
-			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
-			paint.Color = Color.ParseColor("#FFFFFF");
-			for (int i = 0; i < points.Count; i++)
-			{
-				var text = points[i].Item3.ToString();
-				canvas.DrawText(
-					text: text,
-					x: points[i].Item1,
-					y: points[i].Item2 - 2f * density,
-					paint: paint);
-			}
-
 			// Draws X axis labels
 			paint.Reset();
 			paint.TextAlign = Paint.Align.Center;
@@ -240,6 +208,38 @@ namespace BoxRendererTest
 				plotBoundaries.Left, 
 				plotBoundaries.Bottom, 
 				paint);
+
+			// Draws marker shadow
+			paint.Reset();
+			paint.TextAlign = Paint.Align.Center;
+			paint.TextSize = 14f * density;
+			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
+			paint.Color = Color.ParseColor("#1A7596");
+			for (int i = 0; i < points.Count; i++)
+			{
+				var text = points[i].Item3.ToString();
+				canvas.DrawText(
+					text: text,
+					x: points[i].Item1 + density,
+					y: points[i].Item2,
+					paint: paint);
+			}
+
+			// Draws marker text
+			paint.Reset();
+			paint.TextAlign = Paint.Align.Center;
+			paint.TextSize = 14f * density;
+			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
+			paint.Color = Color.ParseColor("#FFFFFF");
+			for (int i = 0; i < points.Count; i++)
+			{
+				var text = points[i].Item3.ToString();
+				canvas.DrawText(
+					text: text,
+					x: points[i].Item1,
+					y: points[i].Item2 - 2f * density,
+					paint: paint);
+			}
 		}
 	}
 }
