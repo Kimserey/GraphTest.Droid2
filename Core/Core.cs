@@ -27,4 +27,21 @@ namespace BoxRendererTest
 		public string X { get; set; }
 		public double Y { get; set; }
 	}
+
+	public class PlotColors
+	{ 
+		public string Text { get; set; }
+		public string Line { get; set; }
+		public string Market { get; set; }
+		public string TextMarket { get; set; }
+		public string Shadow { get; set; }
+		public string Band { get; set; }
+	}
+
+	public class PlotOptions
+	{ 
+		public Data Data { get; set; }
+		public Padding Padding { get; set;}
+		public PlotColors PlotColors { get; set; }
+	}
 }

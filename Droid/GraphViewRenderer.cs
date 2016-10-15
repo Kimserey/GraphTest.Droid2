@@ -57,27 +57,22 @@ namespace BoxRendererTest
 
 		static void DrawPlot(Canvas canvas, int viewWidth, int viewHeight, Padding padding, float density, Paint paint, IEnumerable<Data> items)
 		{
-			paint.Reset();
 			var horizontalL = new Line
 			{
-				XStart = padding.Left,
-				XStop = viewWidth - padding.Right,
-				YStart = viewHeight - padding.Bottom,
-				YStop = viewHeight - padding.Bottom
+				XStart = padding.Left * density,
+				XStop = viewWidth - padding.Right * density,
+				YStart = viewHeight - padding.Bottom * density,
+				YStop = viewHeight - padding.Bottom * density
 			};
 
 
 			var verticalL = new Line
 			{
-				XStart = padding.Left,
-				XStop = padding.Left,
-				YStart = padding.Top,
-				YStop = viewHeight - padding.Bottom
+				XStart = padding.Left * density,
+				XStop = padding.Left * density,
+				YStart = padding.Top * density,
+				YStop = viewHeight - padding.Bottom * density
 			};
-
-			canvas.DrawLine(horizontalL.XStart, horizontalL.YStart, horizontalL.XStop, horizontalL.YStop, paint);
-			canvas.DrawLine(verticalL.XStart, verticalL.YStart, verticalL.XStop, verticalL.YStop, paint);
-
 
 			var horizontal = new Section
 			{
@@ -103,7 +98,7 @@ namespace BoxRendererTest
 				points.Add(Tuple.Create(x, verticalL.YStop - y, l.Item2));
 			}
 
-			// Draws X axis
+			// Draws X axis labels
 			paint.Reset();
 			paint.TextAlign = Paint.Align.Left;
 			paint.TextSize = 9 * density;
@@ -121,32 +116,40 @@ namespace BoxRendererTest
 					paint: paint);
 			}
 
-			// Draw Y axis
+			// Draw Y axis labels
 			paint.Reset();
 			paint.TextAlign = Paint.Align.Center;
 			paint.TextSize = 9 * density;
 			paint.Color = Color.ParseColor("#ededed");
-			foreach (var v in Enumerable.Range(0, vertical.Count).Select(i => Tuple.Create(i * 100, i)))
-			{
-				var y = verticalL.YStop - vertical.Width * v.Item2;
+			for (int i = 0; i < vertical.Count; i++)
+			{ 
+				var y = verticalL.YStop - vertical.Width * i;
 
 				canvas.DrawText(
-					text: v.Item1.ToString(),
+					text: (i * 100).ToString(),
 					x: verticalL.XStart - 2 * density,
 					y: y - (paint.TextSize / 2f),
 					paint: paint);
+			}
 
-				if (v.Item2 % 2 > 0 && v.Item2 < vertical.Count)
-					canvas.DrawRect(
-						left: horizontalL.XStart,
-						top: y - vertical.Width,
-						right: horizontalL.XStop,
-						bottom: y,
-						paint: paint);
+			// Draw horizontal bands
+			paint.Reset();
+			paint.Color = Color.ParseColor("#36acd4");
+			for (int i = vertical.Count - 1; i >= 0; i = i - 2)
+			{
+				var y = verticalL.YStop - vertical.Width * i;
+
+				canvas.DrawRect(
+					left: horizontalL.XStart,
+					top: y - vertical.Width,
+					right: horizontalL.XStop,
+					bottom: y,
+					paint: paint);
 			}
 
 			// Draws line shadow
 			paint.Reset();
+			paint.StrokeWidth = 3f * density;
 			paint.Color = Color.ParseColor("#1A7596");
 			for (int i = 0; i < points.Count; i++)
 			{
@@ -167,6 +170,7 @@ namespace BoxRendererTest
 
 			// Draw main line
 			paint.Reset();
+			paint.StrokeWidth = 3f * density;
 			paint.Color = Color.ParseColor("#ededed");
 			for (int i = 0; i < points.Count; i++)
 			{
@@ -216,6 +220,14 @@ namespace BoxRendererTest
 					y: points[i].Item2 - 2f * density,
 					paint: paint);
 			}
+
+
+			// Draws X and Y axis lines
+			paint.Reset();
+			paint.StrokeWidth = 2f * density;
+			paint.Color = Color.ParseColor("#ededed");
+			canvas.DrawLine(horizontalL.XStart, horizontalL.YStart, horizontalL.XStop, horizontalL.YStop, paint);
+			canvas.DrawLine(verticalL.XStart, verticalL.YStart, verticalL.XStop, verticalL.YStop, paint);
 		}
 	}
 }
