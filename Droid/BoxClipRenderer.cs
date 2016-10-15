@@ -24,18 +24,30 @@ namespace BoxRendererTest
 	public class BoxClipRenderer : BoxRenderer
 	{
 		readonly Paint paint = new Paint();
+		float x;
+		float y;
+
+		protected override void OnElementChanged(ElementChangedEventArgs<BoxView> e)
+		{
+			base.OnElementChanged(e);
+			this.Touch += (object sender, TouchEventArgs touchEvent) => {
+				x = touchEvent.Event.GetX();
+				y = touchEvent.Event.GetY();
+				this.Invalidate();
+			};
+		}
 
 		protected override void OnDraw(Canvas canvas)
 		{
 			base.OnDraw(canvas);
-
 			var density = Resources.DisplayMetrics.Density;
+
 
 			// Draws a Green rectangle 100x100 at 0,0
 			paint.Color = Color.Green;
 			canvas.DrawRect(new RectF(0, 0, 100 * density, 100 * density), paint);
 
-			// Save canvas before executing clipping
+			// Saves canvas before executing clipping
 			// Clips canvas to only draw in 50x100 at 50,50
 			canvas.Save();
 			canvas.ClipRect(new RectF(50 * density, 50 * density, 100 * density, 150 * density));
@@ -52,6 +64,15 @@ namespace BoxRendererTest
 			canvas.Translate(150 * density, 100 * density);
 			paint.Color = Color.Blue;
 			canvas.DrawRect(new RectF(0, 0, 200 * density, 200 * density), paint);
+
+
+			// Draws touch coordinates
+			canvas.Restore();
+			canvas.Translate(-150 * density, -100 * density);
+			paint.TextAlign = Paint.Align.Center;
+			paint.TextSize = 14f * density;
+			paint.Color = Color.Black;
+			canvas.DrawText(x.ToString("F2") + "," + y.ToString("F2"), Width / 2f, Height - 5f * density, paint);
 		}
 	}
 }

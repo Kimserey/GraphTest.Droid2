@@ -6,6 +6,7 @@ namespace BoxRendererTest
 	public class BoxClip: BoxView
 	{
 		public BoxClip()
-		{ }
+		{
+		}
 	}
 }
