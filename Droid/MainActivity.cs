@@ -97,21 +97,24 @@ namespace BoxRendererTest.Droid
 				YStop = viewHeight - padding.Bottom
 			};
 
-			DrawXLabels(canvas, textPaint, horizontal, items.Select(i => i.X));
+			DrawXLabels(canvas, density, textPaint, horizontal, items.Select(i => i.X));
 			DrawYLabels(canvas, density, bandsPaint, textPaint, horizontal, vertical, items.Select(i => i.Y));
 			DrawPlot(canvas, density, linePaint, marketsPaint, textPaint, horizontal, vertical, items);
 
+			axesPaint.Color = Color.ParseColor("#f7f7f7");
 			canvas.DrawLine(horizontal.XStart, horizontal.YStart, horizontal.XStop, horizontal.YStop, axesPaint);
 			canvas.DrawLine(vertical.XStart, vertical.YStart, vertical.XStop, vertical.YStop, axesPaint);
 
 		}
 
-		static void DrawXLabels(Canvas canvas, Paint textPaint, Line horizontal, IEnumerable<string> labels)
+		static void DrawXLabels(Canvas canvas, float density, Paint textPaint, Line horizontal, IEnumerable<string> labels)
 		{
 			textPaint.TextAlign = Paint.Align.Left;
 
 			var sectionWidth = (horizontal.XStop - horizontal.XStart) / labels.Count();
 
+			textPaint.TextSize = 9 * density;
+			textPaint.Color = Color.ParseColor("#f7f7f7");
 			foreach (Tuple<string, int> l in labels.Select((string l, int index) => Tuple.Create(l, index)))
 			{
 				var x = sectionWidth * (l.Item2 + 1f / 2f) + horizontal.XStart;
@@ -132,6 +135,8 @@ namespace BoxRendererTest.Droid
 			var numberOfSections = (int)Math.Ceiling(values.Max() / 100);
 			var sectionWidth = (vertical.YStop - vertical.YStart) / numberOfSections;
 
+			textPaint.TextSize = 9 * density;
+			textPaint.Color = Color.ParseColor("#f7f7f7");
 			foreach (var v in Enumerable.Range(0, numberOfSections).Select(i => Tuple.Create(i * 100, i)))
 			{
 				var y = vertical.YStop - sectionWidth * v.Item2;
@@ -186,7 +191,7 @@ namespace BoxRendererTest.Droid
 			}
 
 			// main line drawing
-			linePaint.Color = Color.ParseColor("#FFFFFF");
+			linePaint.Color = Color.ParseColor("#f7f7f7");
 			for (int i = 0; i < points.Count; i++)
 			{
 				if (i < points.Count - 1)
@@ -205,15 +210,31 @@ namespace BoxRendererTest.Droid
 			}
 
 			// text drawing
-			linePaint.TextSize = 16f * density;
+			linePaint.TextSize = 14f * density;
+			linePaint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
+			linePaint.Color = Color.ParseColor("#1A7596");
+			for (int i = 0; i < points.Count; i++)
+			{
+				var text = points[i].Item3.ToString();
+				canvas.DrawText(
+					text: text,
+					x: points[i].Item1 + density - (linePaint.MeasureText(text) / 2f),
+					y: points[i].Item2,
+					paint: linePaint);
+			}
+
+			// text drawing
+			linePaint.TextSize = 14f * density;
+			linePaint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
 			linePaint.Color = Color.ParseColor("#FFFFFF");
 			for (int i = 0; i < points.Count; i++)
 			{
+				var text = points[i].Item3.ToString();
 				canvas.DrawText(
-					text: points[i].Item3.ToString(),
-					x: points[i].Item1,
+					text: text,
+					x: points[i].Item1 - (linePaint.MeasureText(text) / 2f),
 					y: points[i].Item2 - 2f * density,
-					paint: valuePaint);
+					paint: linePaint);
 			}
 		}
 
