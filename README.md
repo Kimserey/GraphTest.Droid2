@@ -4,13 +4,4 @@ This is a line chart built with Xamarin.Forms with a custom renderer on Xamarin.
 
 But just look at how it looks! It's beautiful isn't it?
 
-### Unselected
-
-![plot](https://raw.githubusercontent.com/Kimserey/GraphTest.Droid2/master/img/plot1.png)
-
-
-### Selected point
-
-![plot1](https://raw.githubusercontent.com/Kimserey/GraphTest.Droid2/master/img/plot2.png)
-
-![plot2](https://raw.githubusercontent.com/Kimserey/GraphTest.Droid2/master/img/plot3.png)
+![chart](https://raw.githubusercontent.com/Kimserey/GraphTest.Droid2/master/img/chartgif.gif)
