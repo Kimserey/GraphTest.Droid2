@@ -7,14 +7,6 @@ namespace BoxRendererTest
 		public static string LightBlue = "#27B4E8";
 	}
 
-	public class Line
-	{
-		public float XStart { get; set; }
-		public float XStop { get; set; }
-		public float YStart { get; set; }
-		public float YStop { get; set; }
-	}
-
 	public class Section
 	{ 
 		public int Count { get; set; }
