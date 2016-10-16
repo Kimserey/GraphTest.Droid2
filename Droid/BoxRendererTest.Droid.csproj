@@ -87,10 +87,6 @@
       <Project>{46F825BB-7233-47C9-904C-C7F4C9E5BEAE}</Project>
       <Name>BoxRendererTest</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Core\Core.csproj">
-      <Project>{9F413445-3CDA-4DB0-8C3E-A4367435046E}</Project>
-      <Name>Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainActivity.cs" />

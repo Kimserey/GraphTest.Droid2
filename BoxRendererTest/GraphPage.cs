@@ -47,7 +47,7 @@ namespace BoxRendererTest
 			var graph = new GraphView
 			{
 				Data = data,
-				BackgroundColor = Color.FromHex(CustomColors.LightBlue)
+				GraphOptions = GraphOptions.Default()
 			};
 
 			var layout = new AbsoluteLayout();
