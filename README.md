@@ -1,4 +1,4 @@
-# Most beautiful line chart for Xamarin.Forms!!
+# Tired of the ugly looking line charts? Look at that one - the most beautiful line chart built for Xamarin.Forms!!
 
 This is a line chart built with Xamarin.Forms with a custom renderer on Xamarin.Android. I haven't built the renderer for iOS.
 
