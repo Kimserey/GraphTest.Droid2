@@ -100,12 +100,12 @@ namespace BoxRendererTest
 			var plotWidth = plotBoundaries.Right - plotBoundaries.Left;
 			var plotHeight = plotBoundaries.Bottom - plotBoundaries.Top;
 
-			var horizontal = new Section
+			var horizontalSection = new Section
 			{
 				Width = plotWidth / items.Count(),
 				Count = items.Count()
 			};
-			var vertical = new Section
+			var verticalSection = new Section
 			{
 				Max = ceilingValue,
 				Count = (int)Math.Ceiling(items.Select(i => i.Y).Max() / 100),
@@ -113,13 +113,13 @@ namespace BoxRendererTest
 			};
 
 			// Calculates all the data coordinates
-			var points = new List<Tuple<float, float, double, bool>>();
+			var points = new List<Tuple<float, float, double>>();
 			foreach (var l in items.Select((l, index) => Tuple.Create(l.X, l.Y, index)))
 			{
-				var x = horizontal.Width * (l.Item3 + 1f / 2f) + plotBoundaries.Left;
-				var y = (float)l.Item2 * plotHeight / vertical.Max;
+				var x = horizontalSection.Width * (l.Item3 + 1f / 2f) + plotBoundaries.Left;
+				var y = (float)l.Item2 * plotHeight / verticalSection.Max;
 
-				points.Add(Tuple.Create(x, plotBoundaries.Bottom - y, l.Item2, false));
+				points.Add(Tuple.Create(x, plotBoundaries.Bottom - y, l.Item2));
 			}
 
 
@@ -140,13 +140,13 @@ namespace BoxRendererTest
 			// Draws horizontal bands
 			paint.Reset();
 			paint.Color = Color.ParseColor("#36acd4");
-			for (int i = vertical.Count - 1; i >= 0; i = i - 2)
+			for (int i = verticalSection.Count - 1; i >= 0; i = i - 2)
 			{
-				var y = plotBoundaries.Bottom - vertical.Width * i;
+				var y = plotBoundaries.Bottom - verticalSection.Width * i;
 
 				canvas.DrawRect(
 					left: plotBoundaries.Left,
-					top: y - vertical.Width,
+					top: y - verticalSection.Width,
 					right: plotBoundaries.Right,
 					bottom: y,
 					paint: paint);
@@ -201,7 +201,7 @@ namespace BoxRendererTest
 			paint.Color = Color.ParseColor("#ededed");
 			foreach (var l in items.Select((Data l, int index) => Tuple.Create(l.X, index)))
 			{
-				var x = horizontal.Width * (l.Item2 + 1f / 2f) + plotBoundaries.Left;
+				var x = horizontalSection.Width * (l.Item2 + 1f / 2f) + plotBoundaries.Left;
 
 				canvas.DrawText(
 					text: l.Item1,
@@ -217,9 +217,9 @@ namespace BoxRendererTest
 			paint.TextAlign = Paint.Align.Right;
 			paint.TextSize = 10f * density;
 			paint.Color = Color.ParseColor("#ededed");
-			for (int i = 0; i < vertical.Count; i++)
+			for (int i = 0; i < verticalSection.Count; i++)
 			{
-				var y = plotBoundaries.Bottom - vertical.Width * i;
+				var y = plotBoundaries.Bottom - verticalSection.Width * i;
 
 				canvas.DrawText(
 					text: (i * 100).ToString(),
