@@ -113,29 +113,21 @@ namespace BoxRendererTest
 			};
 
 			// Calculates all the data coordinates
-			var points = new List<Tuple<float, float, double>>();
+			var points = new List<Tuple<float, float, double, bool>>();
 			foreach (var l in items.Select((l, index) => Tuple.Create(l.X, l.Y, index)))
 			{
 				var x = horizontalSection.Width * (l.Item3 + 1f / 2f) + plotBoundaries.Left;
 				var y = (float)l.Item2 * plotHeight / verticalSection.Max;
 
-				points.Add(Tuple.Create(x, plotBoundaries.Bottom - y, l.Item2));
+				points.Add(
+					Tuple.Create(
+						x, 
+						plotBoundaries.Bottom - y, 
+						l.Item2, 
+						plotBoundaries.Left + l.Item3 * horizontalSection.Width <= xSelect 
+						&& xSelect < plotBoundaries.Left + (l.Item3 + 1) * horizontalSection.Width
+					));
 			}
-
-
-			// Find selection
-			//paint.Reset();
-			//paint.Color = Color.ParseColor("#1A7596");
-			//for (int i = 0; i < horizontal.Count; i++)
-			//{
-			//	var leftBound = plotBoundaries.Left + i * horizontal.Width;
-			//	var rightBound = plotBoundaries.Left + (i + 1) * horizontal.Width;
-
-			//	if (leftBound <= select && select < rightBound)
-			//	{
-			//		canvas.DrawRect(new RectF(leftBound, plotBoundaries.Top, rightBound, plotBoundaries.Bottom), paint);
-			//	}
-			//}
 
 			// Draws horizontal bands
 			paint.Reset();
@@ -166,11 +158,14 @@ namespace BoxRendererTest
 						   points[i + 1].Item2 + 2f * density,
 						   paint);
 
-				canvas.DrawCircle(
-					cx: points[i].Item1,
-					cy: points[i].Item2 + 2f * density,
-					radius: 5 * density,
-					paint: paint);
+				if (points[i].Item4)
+				{
+					canvas.DrawCircle(
+						cx: points[i].Item1,
+						cy: points[i].Item2 + 2f * density,
+						radius: 5 * density,
+						paint: paint);
+				}
 			}
 
 			// Draws main line
@@ -187,11 +182,14 @@ namespace BoxRendererTest
 						points[i + 1].Item2,
 						paint);
 
-				canvas.DrawCircle(
-					cx: points[i].Item1,
-					cy: points[i].Item2,
-					radius: 5 * density,
-					paint: paint);
+				if (points[i].Item4)
+				{
+					canvas.DrawCircle(
+						cx: points[i].Item1,
+						cy: points[i].Item2,
+						radius: 5 * density,
+						paint: paint);
+				}
 			}
 
 			// Draws X axis labels
@@ -245,36 +243,50 @@ namespace BoxRendererTest
 				plotBoundaries.Bottom,
 				paint);
 
-			// Draws marker shadow
+			// Draws marker text shadow
 			paint.Reset();
 			paint.TextAlign = Paint.Align.Center;
-			paint.TextSize = 14f * density;
+			paint.TextSize = 16f * density;
 			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
 			paint.Color = Color.ParseColor("#1A7596");
 			for (int i = 0; i < points.Count; i++)
 			{
 				var text = points[i].Item3.ToString();
-				canvas.DrawText(
-					text: text,
-					x: points[i].Item1 + density,
-					y: points[i].Item2,
-					paint: paint);
+
+				if (points[i].Item4)
+				{
+					canvas.DrawText(
+						text: text,
+						x: points[i].Item1,
+						y: points[i].Item2 - 3f * density,
+						paint: paint);
+					
+					canvas.DrawText(
+						text: text,
+						x: points[i].Item1 + density,
+						y: points[i].Item2 - 3f * density,
+						paint: paint);
+				}
 			}
 
 			// Draws marker text
 			paint.Reset();
 			paint.TextAlign = Paint.Align.Center;
-			paint.TextSize = 14f * density;
+			paint.TextSize = 16f * density;
 			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
 			paint.Color = Color.ParseColor("#FFFFFF");
 			for (int i = 0; i < points.Count; i++)
 			{
 				var text = points[i].Item3.ToString();
-				canvas.DrawText(
-					text: text,
-					x: points[i].Item1,
-					y: points[i].Item2 - 2f * density,
-					paint: paint);
+
+				if (points[i].Item4)
+				{
+					canvas.DrawText(
+						text: text,
+						x: points[i].Item1,
+						y: points[i].Item2 - 5f * density,
+						paint: paint);
+				}
 			}
 
 		}
