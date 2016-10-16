@@ -32,6 +32,28 @@ namespace BoxRendererTest
 	public class GraphViewRenderer : BoxRenderer
 	{
 		Paint paint = new Paint();
+		EventHandler<TouchEventArgs> handler;
+		int touchXCoordinate;
+
+		protected override void OnElementChanged(ElementChangedEventArgs<BoxView> e)
+		{
+			base.OnElementChanged(e);
+
+			if (handler == null)
+			{
+				handler = (sender, touchEvent) =>
+				{
+					var newXCoordinate = (int)touchEvent.Event.GetX();
+					if (touchXCoordinate != newXCoordinate)
+					{
+						touchXCoordinate = newXCoordinate;
+						this.Invalidate();
+					}
+				};
+
+				this.Touch += handler;
+			}
+		}
 
 		protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
@@ -55,28 +77,25 @@ namespace BoxRendererTest
 			var data = ((GraphView)Element).Data;
 			var padding = ((GraphView)Element).Padding;
 
-			DrawPlot(canvas, this.Width, this.Height, padding, Resources.DisplayMetrics.Density, paint, data);
+			DrawPlot(canvas, this.Width, this.Height, padding, Resources.DisplayMetrics.Density, paint, data, touchXCoordinate);
 		}
 
-		static void DrawPlot(Canvas canvas, int viewWidth, int viewHeight, Padding padding, float density, Paint paint, IEnumerable<Data> items)
+		static void DrawPlot(Canvas canvas, int viewWidth, int viewHeight, Padding padding, float density, Paint paint, IEnumerable<Data> items, int select)
 		{
 			// Set text size to measure text
 			paint.TextSize = 10f * density;
 
-			var longestYLabel =
-				items.Select(i => i.X)
-					 .OrderByDescending(i => i)
-					 .FirstOrDefault();
+			var ceilingValue = (int)Math.Ceiling(items.Max(i => i.Y) / 100f) * 100f;
 
 			// Computes plot boundaries
-			// - Left: left padding + maximum text lenght + 1dp
+			// - Left: left padding + maximum text lenght + 2dp
 			// - Bottom: bottom padding + text size
 			var plotBoundaries = new PlotBoundaries
 			{
-				Left = padding.Left * density + paint.MeasureText(longestYLabel) + 3f * density,
+				Left = padding.Left * density + paint.MeasureText(ceilingValue.ToString()) + 2f * density,
 				Right = viewWidth - padding.Right * density,
 				Top = padding.Top * density,
-				Bottom = viewHeight - padding.Bottom * density - paint.TextSize
+				Bottom = viewHeight - padding.Bottom * density - paint.TextSize - 2f * density
 			};
 			var plotWidth = plotBoundaries.Right - plotBoundaries.Left;
 			var plotHeight = plotBoundaries.Bottom - plotBoundaries.Top;
@@ -88,7 +107,7 @@ namespace BoxRendererTest
 			};
 			var vertical = new Section
 			{
-				Max = (int)Math.Ceiling(items.Max(i => i.Y) / 100f) * 100f,
+				Max = ceilingValue,
 				Count = (int)Math.Ceiling(items.Select(i => i.Y).Max() / 100),
 				Width = plotHeight / ((int)Math.Ceiling(items.Select(i => i.Y).Max() / 100))
 			};
@@ -172,11 +191,13 @@ namespace BoxRendererTest
 				canvas.DrawText(
 					text: l.Item1,
 					x: x,
-					y: plotBoundaries.Bottom + paint.TextSize,
+					y: plotBoundaries.Bottom + paint.TextSize + 2f * density,
 					paint: paint);
 			}
 
 			// Draw Y axis labels
+			// The 1.5f * density on y is a hack to get the label aligned vertically.
+			// It will need adjustements if the font size changes.
 			paint.Reset();
 			paint.TextAlign = Paint.Align.Right;
 			paint.TextSize = 10f * density;
@@ -187,8 +208,8 @@ namespace BoxRendererTest
 
 				canvas.DrawText(
 					text: (i * 100).ToString(),
-					x: plotBoundaries.Left - 3f * density,
-					y: y - (paint.TextSize / 2f),
+					x: plotBoundaries.Left - 2f * density,
+					y: y - (paint.Ascent() / 2f + 1.5f * density),
 					paint: paint);
 			}
 
@@ -239,6 +260,15 @@ namespace BoxRendererTest
 					x: points[i].Item1,
 					y: points[i].Item2 - 2f * density,
 					paint: paint);
+			}
+
+
+			//test
+			paint.Reset();
+			paint.Color = Color.ParseColor("#1A7596");
+			for (float i = plotBoundaries.Left; i <= select; i = i + horizontal.Width)
+			{
+				canvas.DrawRect(new RectF(plotBoundaries.Left, plotBoundaries.Top, plotBoundaries.Right, plotBoundaries.Bottom), paint);
 			}
 		}
 	}

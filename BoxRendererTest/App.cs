@@ -10,7 +10,7 @@ namespace BoxRendererTest
 	{
 		public App()
 		{
-			MainPage = new NavigationPage(new ContentPage { Content = new BoxClip() });
+			MainPage = new NavigationPage(new GraphPage());
 		}
 	}
 }
