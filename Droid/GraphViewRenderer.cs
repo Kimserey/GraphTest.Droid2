@@ -33,7 +33,8 @@ namespace BoxRendererTest
 	{
 		Paint paint = new Paint();
 		EventHandler<TouchEventArgs> handler;
-		int touchXCoordinate;
+		int touchXCoordinate = -1;
+		float[] tempHSV = new float[3];
 
 		protected override void OnElementChanged(ElementChangedEventArgs<BoxView> e)
 		{
@@ -46,7 +47,8 @@ namespace BoxRendererTest
 					var newXCoordinate = (int)touchEvent.Event.GetX();
 					if (touchXCoordinate != newXCoordinate)
 					{
-						touchXCoordinate = newXCoordinate;
+						//Reset coordinate on double tap
+						touchXCoordinate = newXCoordinate < 100 ? -1 : newXCoordinate;
 						this.Invalidate();
 					}
 				};
@@ -77,13 +79,40 @@ namespace BoxRendererTest
 			var data = ((GraphView)Element).Data;
 			var padding = ((GraphView)Element).Padding;
 
-			DrawPlot(canvas, this.Width, this.Height, padding, Resources.DisplayMetrics.Density, paint, data, touchXCoordinate);
+			DrawPlot(canvas, this.Width, this.Height, padding, Resources.DisplayMetrics.Density, data, touchXCoordinate);
 		}
 
-		static void DrawPlot(Canvas canvas, int viewWidth, int viewHeight, Padding padding, float density, Paint paint, IEnumerable<Data> items, int xSelect)
+		void Darken(ref Color color)
+		{ 
+			Color.ColorToHSV(color, tempHSV);
+			tempHSV[2] *= .5f;
+			color = Color.HSVToColor(tempHSV);
+		}
+
+		void DrawPlot(Canvas canvas, int viewWidth, int viewHeight, Padding padding, float density, IEnumerable<Data> items, int xSelect)
 		{
+			var backgroundColor = Color.ParseColor("#2CBCEB");
+			var bandsColor = Color.ParseColor("#36ACD4");
+			var lineShadowColor = Color.ParseColor("#1A7596");
+			var lineColor = Color.ParseColor("#EDEDED");
+			var labelTextSize = 12f * density;
+
+			if (xSelect != -1)
+			{
+				Darken(ref backgroundColor);
+				Darken(ref bandsColor);
+				Darken(ref lineShadowColor);
+				Darken(ref lineColor);
+			}
+
+			var markerTextShadowColor = Color.ParseColor("#0E3D4D");
+			var markerTextColor = Color.ParseColor("#FFFFFF");
+
+			paint.Color = backgroundColor;
+			canvas.DrawRect(new Rect(0, 0, viewWidth, viewHeight), paint);
+
 			// Set text size to measure text
-			paint.TextSize = 10f * density;
+			paint.TextSize = labelTextSize;
 
 			var ceilingValue = (int)Math.Ceiling(items.Max(i => i.Y) / 100f) * 100f;
 
@@ -131,7 +160,7 @@ namespace BoxRendererTest
 
 			// Draws horizontal bands
 			paint.Reset();
-			paint.Color = Color.ParseColor("#36acd4");
+			paint.Color = bandsColor;
 			for (int i = verticalSection.Count - 1; i >= 0; i = i - 2)
 			{
 				var y = plotBoundaries.Bottom - verticalSection.Width * i;
@@ -147,7 +176,7 @@ namespace BoxRendererTest
 			// Draws line shadow
 			paint.Reset();
 			paint.StrokeWidth = 3f * density;
-			paint.Color = Color.ParseColor("#1A7596");
+			paint.Color = lineShadowColor;
 			for (int i = 0; i < points.Count; i++)
 			{
 				if (i < points.Count - 1)
@@ -158,20 +187,17 @@ namespace BoxRendererTest
 						   points[i + 1].Item2 + 2f * density,
 						   paint);
 
-				if (points[i].Item4)
-				{
-					canvas.DrawCircle(
-						cx: points[i].Item1,
-						cy: points[i].Item2 + 2f * density,
-						radius: 5 * density,
-						paint: paint);
-				}
+				canvas.DrawCircle(
+					cx: points[i].Item1,
+					cy: points[i].Item2 + 2f * density,
+					radius: 4f * density,
+					paint: paint);
 			}
 
 			// Draws main line
 			paint.Reset();
 			paint.StrokeWidth = 3f * density;
-			paint.Color = Color.ParseColor("#ededed");
+			paint.Color = lineColor;
 			for (int i = 0; i < points.Count; i++)
 			{
 				if (i < points.Count - 1)
@@ -182,30 +208,41 @@ namespace BoxRendererTest
 						points[i + 1].Item2,
 						paint);
 
-				if (points[i].Item4)
-				{
-					canvas.DrawCircle(
-						cx: points[i].Item1,
-						cy: points[i].Item2,
-						radius: 5 * density,
-						paint: paint);
-				}
+				canvas.DrawCircle(
+					cx: points[i].Item1,
+					cy: points[i].Item2,
+					radius: 4f * density,
+					paint: paint);
 			}
 
 			// Draws X axis labels
 			paint.Reset();
 			paint.TextAlign = Paint.Align.Center;
-			paint.TextSize = 10f * density;
-			paint.Color = Color.ParseColor("#ededed");
+			paint.TextSize = labelTextSize;
 			foreach (var l in items.Select((Data l, int index) => Tuple.Create(l.X, index)))
 			{
 				var x = horizontalSection.Width * (l.Item2 + 1f / 2f) + plotBoundaries.Left;
 
-				canvas.DrawText(
-					text: l.Item1,
-					x: x,
-					y: plotBoundaries.Bottom + paint.TextSize + 2f * density,
-					paint: paint);
+				if (points[l.Item2].Item4)
+				{
+					paint.Color = markerTextColor;
+					
+					canvas.DrawText(
+						text: l.Item1,
+						x: x,
+						y: plotBoundaries.Bottom + paint.TextSize + 2f * density,
+						paint: paint);
+				}
+				else 
+				{
+					paint.Color = lineColor;
+					
+					canvas.DrawText(
+						text: l.Item1,
+						x: x,
+						y: plotBoundaries.Bottom + paint.TextSize + 2f * density,
+						paint: paint);
+				}
 			}
 
 			// Draw Y axis labels
@@ -213,8 +250,8 @@ namespace BoxRendererTest
 			// It will need adjustements if the font size changes.
 			paint.Reset();
 			paint.TextAlign = Paint.Align.Right;
-			paint.TextSize = 10f * density;
-			paint.Color = Color.ParseColor("#ededed");
+			paint.TextSize = labelTextSize;
+			paint.Color = lineColor;
 			for (int i = 0; i < verticalSection.Count; i++)
 			{
 				var y = plotBoundaries.Bottom - verticalSection.Width * i;
@@ -229,7 +266,7 @@ namespace BoxRendererTest
 			// Draws X and Y axis lines
 			paint.Reset();
 			paint.StrokeWidth = 2f * density;
-			paint.Color = Color.ParseColor("#ededed");
+			paint.Color = lineColor;
 			canvas.DrawLine(
 				plotBoundaries.Left,
 				plotBoundaries.Bottom,
@@ -243,52 +280,67 @@ namespace BoxRendererTest
 				plotBoundaries.Bottom,
 				paint);
 
-			// Draws marker text shadow
+			// Draws markers
 			paint.Reset();
-			paint.TextAlign = Paint.Align.Center;
-			paint.TextSize = 16f * density;
-			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
-			paint.Color = Color.ParseColor("#1A7596");
 			for (int i = 0; i < points.Count; i++)
 			{
-				var text = points[i].Item3.ToString();
+				if (points[i].Item4)
+				{
+					paint.Color = markerTextShadowColor;
+					canvas.DrawCircle(
+						cx: points[i].Item1,
+						cy: points[i].Item2 + 2f * density,
+						radius: 5 * density,
+						paint: paint);
+				}
 
 				if (points[i].Item4)
 				{
-					canvas.DrawText(
-						text: text,
-						x: points[i].Item1,
-						y: points[i].Item2 - 3f * density,
-						paint: paint);
-					
-					canvas.DrawText(
-						text: text,
-						x: points[i].Item1 + density,
-						y: points[i].Item2 - 3f * density,
+					paint.Color = markerTextColor;
+					canvas.DrawCircle(
+						cx: points[i].Item1,
+						cy: points[i].Item2,
+						radius: 5 * density,
 						paint: paint);
 				}
 			}
 
+			// Draws marker text shadow
 			// Draws marker text
 			paint.Reset();
 			paint.TextAlign = Paint.Align.Center;
 			paint.TextSize = 16f * density;
 			paint.SetTypeface(Typeface.Create(Typeface.Default, TypefaceStyle.Bold));
-			paint.Color = Color.ParseColor("#FFFFFF");
+			paint.Color = markerTextShadowColor;
 			for (int i = 0; i < points.Count; i++)
 			{
 				var text = points[i].Item3.ToString();
 
 				if (points[i].Item4)
 				{
+					paint.Color = markerTextShadowColor;
+
 					canvas.DrawText(
 						text: text,
 						x: points[i].Item1,
-						y: points[i].Item2 - 5f * density,
+						y: points[i].Item2 - 8f * density,
+						paint: paint);
+					
+					canvas.DrawText(
+						text: text,
+						x: points[i].Item1,
+						y: points[i].Item2 - 8f * density,
+						paint: paint);
+
+					paint.Color = markerTextColor;
+
+					canvas.DrawText(
+						text: text,
+						x: points[i].Item1,
+						y: points[i].Item2 - 10f * density,
 						paint: paint);
 				}
 			}
-
 		}
 	}
 }
