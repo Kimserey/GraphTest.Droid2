@@ -26,15 +26,20 @@ namespace BoxRendererTest
 		readonly Paint paint = new Paint();
 		float x;
 		float y;
+		EventHandler<TouchEventArgs> handler;
 
 		protected override void OnElementChanged(ElementChangedEventArgs<BoxView> e)
 		{
-			base.OnElementChanged(e);
-			this.Touch += (object sender, TouchEventArgs touchEvent) => {
-				x = touchEvent.Event.GetX();
-				y = touchEvent.Event.GetY();
-				this.Invalidate();
-			};
+		    base.OnElementChanged(e);
+
+			if (handler == null) {
+				handler = (sender, touchEvent) => {
+				   x = touchEvent.Event.GetX();
+				   y = touchEvent.Event.GetY();
+				   this.Invalidate();
+				};
+				this.Touch += handler;
+			}
 		}
 
 		protected override void OnDraw(Canvas canvas)
