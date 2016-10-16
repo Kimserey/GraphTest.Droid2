@@ -60,11 +60,11 @@ namespace BoxRendererTest
 			base.OnElementPropertyChanged(sender, e);
 
 			if (e.PropertyName == GraphView.DataProperty.PropertyName
-			    || e.PropertyName == GraphView.PaddingProperty.PropertyName
-			    || e.PropertyName == VisualElement.WidthProperty.PropertyName
-			    || e.PropertyName == VisualElement.WidthRequestProperty.PropertyName
+				|| e.PropertyName == GraphView.PaddingProperty.PropertyName
+				|| e.PropertyName == VisualElement.WidthProperty.PropertyName
+				|| e.PropertyName == VisualElement.WidthRequestProperty.PropertyName
 				|| e.PropertyName == VisualElement.HeightProperty.PropertyName
-			    || e.PropertyName == VisualElement.HeightRequestProperty.PropertyName)
+				|| e.PropertyName == VisualElement.HeightRequestProperty.PropertyName)
 			{
 				this.Invalidate();
 			}
@@ -80,7 +80,7 @@ namespace BoxRendererTest
 			DrawPlot(canvas, this.Width, this.Height, padding, Resources.DisplayMetrics.Density, paint, data, touchXCoordinate);
 		}
 
-		static void DrawPlot(Canvas canvas, int viewWidth, int viewHeight, Padding padding, float density, Paint paint, IEnumerable<Data> items, int select)
+		static void DrawPlot(Canvas canvas, int viewWidth, int viewHeight, Padding padding, float density, Paint paint, IEnumerable<Data> items, int xSelect)
 		{
 			// Set text size to measure text
 			paint.TextSize = 10f * density;
@@ -113,14 +113,29 @@ namespace BoxRendererTest
 			};
 
 			// Calculates all the data coordinates
-			var points = new List<Tuple<float, float, double>>();
+			var points = new List<Tuple<float, float, double, bool>>();
 			foreach (var l in items.Select((l, index) => Tuple.Create(l.X, l.Y, index)))
 			{
 				var x = horizontal.Width * (l.Item3 + 1f / 2f) + plotBoundaries.Left;
 				var y = (float)l.Item2 * plotHeight / vertical.Max;
 
-				points.Add(Tuple.Create(x, plotBoundaries.Bottom - y, l.Item2));
+				points.Add(Tuple.Create(x, plotBoundaries.Bottom - y, l.Item2, false));
 			}
+
+
+			// Find selection
+			//paint.Reset();
+			//paint.Color = Color.ParseColor("#1A7596");
+			//for (int i = 0; i < horizontal.Count; i++)
+			//{
+			//	var leftBound = plotBoundaries.Left + i * horizontal.Width;
+			//	var rightBound = plotBoundaries.Left + (i + 1) * horizontal.Width;
+
+			//	if (leftBound <= select && select < rightBound)
+			//	{
+			//		canvas.DrawRect(new RectF(leftBound, plotBoundaries.Top, rightBound, plotBoundaries.Bottom), paint);
+			//	}
+			//}
 
 			// Draws horizontal bands
 			paint.Reset();
@@ -219,15 +234,15 @@ namespace BoxRendererTest
 			paint.Color = Color.ParseColor("#ededed");
 			canvas.DrawLine(
 				plotBoundaries.Left,
-				plotBoundaries.Bottom, 
-				plotBoundaries.Right, 
-				plotBoundaries.Bottom, 
+				plotBoundaries.Bottom,
+				plotBoundaries.Right,
+				plotBoundaries.Bottom,
 				paint);
 			canvas.DrawLine(
-				plotBoundaries.Left, 
-                plotBoundaries.Top, 
-				plotBoundaries.Left, 
-				plotBoundaries.Bottom, 
+				plotBoundaries.Left,
+				plotBoundaries.Top,
+				plotBoundaries.Left,
+				plotBoundaries.Bottom,
 				paint);
 
 			// Draws marker shadow
@@ -262,14 +277,6 @@ namespace BoxRendererTest
 					paint: paint);
 			}
 
-
-			//test
-			paint.Reset();
-			paint.Color = Color.ParseColor("#1A7596");
-			for (float i = plotBoundaries.Left; i <= select; i = i + horizontal.Width)
-			{
-				canvas.DrawRect(new RectF(plotBoundaries.Left, plotBoundaries.Top, plotBoundaries.Right, plotBoundaries.Bottom), paint);
-			}
 		}
 	}
 }
