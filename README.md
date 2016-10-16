@@ -6,10 +6,11 @@ But just look at how it looks! It's beautiful isn't it?
 
 ### Unselected
 
-![[plot](https://raw.githubusercontent.com/Kimserey/GraphTest.Droid2/master/img/plot1.png)
+![plot](https://raw.githubusercontent.com/Kimserey/GraphTest.Droid2/master/img/plot1.png)
+
 
 ### Selected point
 
-![plot1](https://raw.githubusercontent.com/Kimserey/GraphTest.Droid2/master/img/plot1.png)
+![plot1](https://raw.githubusercontent.com/Kimserey/GraphTest.Droid2/master/img/plot2.png)
 
-![plot2](https://raw.githubusercontent.com/Kimserey/GraphTest.Droid2/master/img/plot2.png)
+![plot2](https://raw.githubusercontent.com/Kimserey/GraphTest.Droid2/master/img/plot3.png)
