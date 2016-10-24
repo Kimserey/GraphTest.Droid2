@@ -55,7 +55,7 @@ namespace BoxRendererTest
 			layout.Children.Add(graph, new Rectangle(0, 0, 1, .4), AbsoluteLayoutFlags.All);
 			layout.Children.Add(list, new Rectangle(0, 1, 1, .6), AbsoluteLayoutFlags.All);
 
-			Title = "My expenses";
+			Title = "Line";
 			Content = layout;
 		}
 	}

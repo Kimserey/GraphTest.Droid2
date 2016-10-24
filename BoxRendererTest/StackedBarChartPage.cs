@@ -31,7 +31,7 @@ namespace BoxRendererTest
 	{
 		public StackedBarChartPage()
 		{
-			this.Title = "Bar chart";
+			this.Title = "Stacked bar";
 
 			var data =
 				new List<StackedBarDataItem> {
@@ -52,8 +52,8 @@ namespace BoxRendererTest
 
 			var chart =
 				new StackedBarChartView {
-					Margin = 15,
-					Data = data
+					Data = data,
+					BackgroundColor = Color.FromHex("#2CBCEB")
 				};
 
 			var layout = new AbsoluteLayout();

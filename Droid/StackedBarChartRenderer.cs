@@ -31,19 +31,23 @@ namespace BoxRendererTest
 		{
 			base.OnDraw(canvas);
 
-			var data = ((StackedBarChartView)this.Element).Data;
+			var density = Resources.DisplayMetrics.Density;
+			var margin = 15 * density;
 
-			var k = this.Width / data.Sum(i => i.Value);
+			var element = (StackedBarChartView)this.Element;
+
+			var data = element.Data;
+
+			var k = (this.Width - 2 * margin) / data.Sum(i => i.Value);
 			var values = data.Select(i => Tuple.Create(i, (float)(i.Value * k)));
 
-			var position = 0f;
+			var position = margin;
 			foreach (var v in values)
 			{
 				paint.Color = v.Item1.Color.ToAndroid();
-				canvas.DrawRect(new RectF(position, 0, position + v.Item2, this.Height), paint);
+				canvas.DrawRect(new RectF(position, margin, position + v.Item2, this.Height - margin), paint);
 				position += v.Item2;
 			}
-
 		}
 	}
 }
