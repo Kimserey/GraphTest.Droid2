@@ -16,6 +16,42 @@ namespace BoxRendererTest
 	public class StackedBarChartRenderer: BoxRenderer
 	{
 		Paint paint = new Paint();
+		EventHandler<TouchEventArgs> handler;
+		int touchXCoordinate = 0;
+		float[] tempHSV = new float[3];
+
+		~StackedBarChartRenderer()
+		{
+			this.Touch -= handler;
+		}
+
+		// Make color darker by altering the third HSV value
+		void Darken(ref Color color)
+		{
+			Color.ColorToHSV(color, tempHSV);
+			tempHSV[2] *= .5f;
+			color = Color.HSVToColor(tempHSV);
+		}
+
+		protected override void OnElementChanged(ElementChangedEventArgs<BoxView> e)
+		{
+			base.OnElementChanged(e);
+
+			if (handler == null)
+			{
+				handler = (sender, touchEvent) =>
+				{
+					var newXCoordinate = (int)touchEvent.Event.GetX();
+					if (touchXCoordinate != newXCoordinate)
+					{
+						touchXCoordinate = newXCoordinate;
+						this.Invalidate();
+					}
+				};
+
+				this.Touch += handler;
+			}
+		}
 
 		protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
@@ -31,6 +67,11 @@ namespace BoxRendererTest
 		{
 			base.OnDraw(canvas);
 
+			var backgroundColor = Color.ParseColor("#2CBCEB");
+			var shadowColor = Color.ParseColor("#1A7596");
+			var barColor = Color.White;
+			var markerColor = Color.White;
+
 			var density = Resources.DisplayMetrics.Density;
 			var margin = 15 * density;
 
@@ -39,14 +80,67 @@ namespace BoxRendererTest
 			var data = element.Data;
 
 			var k = (this.Width - 2 * margin) / data.Sum(i => i.Value);
-			var values = data.Select(i => Tuple.Create(i, (float)(i.Value * k)));
+			var values = data.Select((i, index) => Tuple.Create(i, (float)(i.Value * k), index)).ToList();
+
 
 			var position = margin;
-			foreach (var v in values)
+
+			// Shadow
+			var offset = 3 * density;
+
+
+			if (touchXCoordinate >= margin && touchXCoordinate <= this.Width - margin)
 			{
-				paint.Color = v.Item1.Color.ToAndroid();
-				canvas.DrawRect(new RectF(position, margin, position + v.Item2, this.Height - margin), paint);
-				position += v.Item2;
+				Darken(ref backgroundColor);
+				Darken(ref shadowColor);
+				Darken(ref barColor);
+
+				paint.Color = backgroundColor;
+				canvas.DrawRect(new Rect(0, 0, this.Width, this.Height), paint);
+
+				foreach (var v in values)
+				{
+					if (touchXCoordinate > position && touchXCoordinate <= position + v.Item2)
+					{ 
+						// Draw shadow
+						paint.Color = shadowColor;
+						canvas.DrawRect(new RectF(position + offset - density, margin + offset - density, position + offset + v.Item2 + density, this.Height - margin + offset + density), paint);
+
+						//Draw bar
+						paint.Color = markerColor;
+						canvas.DrawRect(new RectF(position - density, margin - density, position + v.Item2 + density, this.Height - margin + density), paint);
+					}
+					else
+					{
+						// Draw shadow
+						paint.Color = shadowColor;
+						canvas.DrawRect(new RectF(position + offset, margin + offset, position + offset + v.Item2, this.Height - margin + offset), paint);
+
+						//Draw bar
+						paint.Color = barColor;
+						canvas.DrawRect(new RectF(v.Item3 == 0 ? position : position + offset, margin, position + v.Item2, this.Height - margin), paint);
+					}
+
+					position += v.Item2;
+				}
+			}
+			else
+			{
+				paint.Color = backgroundColor;
+				canvas.DrawRect(new Rect(0, 0, this.Width, this.Height), paint);
+
+				foreach (var v in values)
+				{
+					// Draw shadow
+					paint.Color = shadowColor;
+					canvas.DrawRect(new RectF(position + offset, margin + offset, position + offset + v.Item2, this.Height - margin + offset), paint);
+
+					//Draw bar
+					paint.Color = barColor;
+					canvas.DrawRect(new RectF(v.Item3 == 0 ? position : position + offset, margin, position + v.Item2, this.Height - margin), paint);
+
+					position += v.Item2;
+				}
 			}
 		}
 	}

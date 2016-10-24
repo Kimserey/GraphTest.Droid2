@@ -7,7 +7,6 @@ namespace BoxRendererTest
 	public class StackedBarDataItem
 	{
 		public string Name { get; set; }
-		public Color Color { get; set; }
 		public double Value { get; set; }
 	}
 
@@ -16,13 +15,13 @@ namespace BoxRendererTest
 		public static readonly BindableProperty DataProperty =
   			BindableProperty.Create(
 			  propertyName: "Data",
-			  returnType: typeof(IEnumerable<StackedBarDataItem>),
+			  returnType: typeof(IList<StackedBarDataItem>),
 			  declaringType: typeof(StackedBarChartView),
 			  defaultValue: new List<StackedBarDataItem>());
 
-		public IEnumerable<StackedBarDataItem> Data
+		public IList<StackedBarDataItem> Data
 		{
-			get { return (IEnumerable<StackedBarDataItem>)GetValue(DataProperty); }
+			get { return (IList<StackedBarDataItem>)GetValue(DataProperty); }
 			set { SetValue(DataProperty, value); }
 		}
 	}
@@ -35,9 +34,10 @@ namespace BoxRendererTest
 
 			var data =
 				new List<StackedBarDataItem> {
-						new StackedBarDataItem { Name = "A", Value = 90, Color = Color.Red },
-						new StackedBarDataItem { Name = "B", Value = 32, Color = Color.Blue },
-						new StackedBarDataItem { Name = "C", Value = 100, Color = Color.Yellow }
+						new StackedBarDataItem { Name = "Apples", Value = 90 },
+						new StackedBarDataItem { Name = "Bananas", Value = 32 },
+						new StackedBarDataItem { Name = "Carrots", Value = 100 },
+						new StackedBarDataItem { Name = "Oranges", Value = 10 }
 				};
 
 			var list =
@@ -52,8 +52,7 @@ namespace BoxRendererTest
 
 			var chart =
 				new StackedBarChartView {
-					Data = data,
-					BackgroundColor = Color.FromHex("#2CBCEB")
+					Data = data
 				};
 
 			var layout = new AbsoluteLayout();

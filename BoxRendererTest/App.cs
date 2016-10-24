@@ -19,8 +19,8 @@ namespace BoxRendererTest
 				new TabbedPage
 				{
 					Children = {
-						new GraphPage(),
-						new StackedBarChartPage()
+						new StackedBarChartPage(),
+						new GraphPage()
 					}
 				};
 		}
