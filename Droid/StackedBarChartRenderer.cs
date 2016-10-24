@@ -104,11 +104,11 @@ namespace BoxRendererTest
 					{ 
 						// Draw shadow
 						paint.Color = shadowColor;
-						canvas.DrawRect(new RectF(position + offset - density, margin + offset - density, position + offset + v.Item2 + density, this.Height - margin + offset + density), paint);
+						canvas.DrawRect(new RectF(position + offset, margin + offset, position + offset + v.Item2, this.Height - margin + offset), paint);
 
 						//Draw bar
 						paint.Color = markerColor;
-						canvas.DrawRect(new RectF(position - density, margin - density, position + v.Item2 + density, this.Height - margin + density), paint);
+						canvas.DrawRect(new RectF(v.Item3 == 0 ? position : position + offset, margin, position + v.Item2, this.Height - margin), paint);
 					}
 					else
 					{
