@@ -6,6 +6,11 @@ using Xamarin.Forms;
 
 namespace BoxRendererTest
 {
+	// A clipping test
+	// Code is in custom renderer
+	public class BoxClip : BoxView
+	{ }
+
 	public class App : Application
 	{
 		public App()
@@ -15,15 +20,7 @@ namespace BoxRendererTest
 				{
 					Children = {
 						new GraphPage(),
-						new BarChartPage(),
-						new ContentPage {
-							Title = "Elevation",
-							Content = new Frame {
-								Content = new Label { Text = "Hello" },
-						        HorizontalOptions = LayoutOptions.Center,
-								VerticalOptions = LayoutOptions.CenterAndExpand
-							}
-						}
+						new StackedBarChartPage()
 					}
 				};
 		}
