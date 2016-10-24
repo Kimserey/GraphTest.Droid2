@@ -94,6 +94,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GraphViewRenderer.cs" />
     <Compile Include="BoxClipRenderer.cs" />
+    <Compile Include="BarChartRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

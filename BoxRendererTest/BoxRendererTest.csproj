@@ -33,6 +33,7 @@
     <Compile Include="GraphView.cs" />
     <Compile Include="BoxClip.cs" />
     <Compile Include="GraphPage.cs" />
+    <Compile Include="BarChart.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Xamarin.Forms.Core">

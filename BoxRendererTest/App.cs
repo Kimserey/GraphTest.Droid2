@@ -10,7 +10,22 @@ namespace BoxRendererTest
 	{
 		public App()
 		{
-			MainPage = new NavigationPage(new GraphPage());
+			MainPage =
+				new TabbedPage
+				{
+					Children = {
+						new GraphPage(),
+						new BarChartPage(),
+						new ContentPage {
+							Title = "Elevation",
+							Content = new Frame {
+								Content = new Label { Text = "Hello" },
+						        HorizontalOptions = LayoutOptions.Center,
+								VerticalOptions = LayoutOptions.CenterAndExpand
+							}
+						}
+					}
+				};
 		}
 	}
 }
