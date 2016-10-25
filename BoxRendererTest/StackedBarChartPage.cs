@@ -39,14 +39,14 @@ namespace BoxRendererTest
 		public static readonly BindableProperty DataProperty =
   			BindableProperty.Create(
 				propertyName: "Data",
-				returnType: typeof(ObservableCollection<StackedBarDataItem>),
+				returnType: typeof(List<StackedBarDataItem>),
 				declaringType: typeof(StackedBarChartView),
-				defaultValue: new ObservableCollection<StackedBarDataItem>(),
+				defaultValue: new List<StackedBarDataItem>(),
 				defaultBindingMode: BindingMode.TwoWay);
 
-		public ObservableCollection<StackedBarDataItem> Data
+		public List<StackedBarDataItem> Data
 		{
-			get { return (ObservableCollection<StackedBarDataItem>)GetValue(DataProperty); }
+			get { return (List<StackedBarDataItem>)GetValue(DataProperty); }
 			set { SetValue(DataProperty, value); }
 		}
 
@@ -69,7 +69,7 @@ namespace BoxRendererTest
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		ObservableCollection<StackedBarDataItem> items = new ObservableCollection<StackedBarDataItem>();
-		IEnumerable<StackedBarDataItem> chartData;
+		List<StackedBarDataItem> chartData;
 
 		public StackedBarChartPageViewModel()
 		{
@@ -81,16 +81,20 @@ namespace BoxRendererTest
 						new StackedBarDataItem { Name = "Oranges", Value = 10 }
 				};
 
-			chartData = items;
+			chartData = items.ToList();
 
 			this.AddItemCommand = new Command(() =>
 				{
 					items.Add(new StackedBarDataItem { Name = "New one", Value = 10 });
-					this.ChartData = items.ToList();
+
+					var temp = new List<StackedBarDataItem>();
+					foreach (var i in items)
+						temp.Add(i);
+					this.ChartData = temp;
 				});
 		}
 
-		public IEnumerable<StackedBarDataItem> ChartData
+		public List<StackedBarDataItem> ChartData
 		{
 			get
 			{
