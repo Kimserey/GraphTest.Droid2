@@ -67,13 +67,18 @@ namespace BoxRendererTest
 		{
 			base.OnDraw(canvas);
 
+			var density = Resources.DisplayMetrics.Density;
+			var margin = 15 * density;
+
 			var backgroundColor = Color.ParseColor("#2CBCEB");
 			var shadowColor = Color.ParseColor("#1A7596");
 			var barColor = Color.White;
 			var markerColor = Color.White;
 
-			var density = Resources.DisplayMetrics.Density;
-			var margin = 15 * density;
+			// Set paint text properties
+			paint.TextAlign = Paint.Align.Center;
+			paint.TextSize = 14 * density;
+
 
 			var element = (StackedBarChartView)this.Element;
 
@@ -104,21 +109,25 @@ namespace BoxRendererTest
 					{ 
 						// Draw shadow
 						paint.Color = shadowColor;
-						canvas.DrawRect(new RectF(position + offset, margin + offset, position + offset + v.Item2, this.Height - margin + offset), paint);
+						canvas.DrawRect(new RectF(position + offset, margin + offset, position + offset + v.Item2, this.Height - margin - paint.TextSize + offset), paint);
 
 						//Draw bar
 						paint.Color = markerColor;
-						canvas.DrawRect(new RectF(v.Item3 == 0 ? position : position + offset, margin, position + v.Item2, this.Height - margin), paint);
+						canvas.DrawRect(new RectF(v.Item3 == 0 ? position : position + offset, margin, position + v.Item2, this.Height - margin - paint.TextSize), paint);
+
+						//Draw label
+						paint.Color = markerColor;
+						canvas.DrawText(String.Format("{0} - {1}", v.Item1.Name, v.Item1.Value.ToString("C2")), this.Width / 2,  this.Height - (margin / 2), paint);
 					}
 					else
 					{
 						// Draw shadow
 						paint.Color = shadowColor;
-						canvas.DrawRect(new RectF(position + offset, margin + offset, position + offset + v.Item2, this.Height - margin + offset), paint);
+						canvas.DrawRect(new RectF(position + offset, margin + offset, position + offset + v.Item2, this.Height - margin - paint.TextSize + offset), paint);
 
 						//Draw bar
 						paint.Color = barColor;
-						canvas.DrawRect(new RectF(v.Item3 == 0 ? position : position + offset, margin, position + v.Item2, this.Height - margin), paint);
+						canvas.DrawRect(new RectF(v.Item3 == 0 ? position : position + offset, margin, position + v.Item2, this.Height - paint.TextSize - margin), paint);
 					}
 
 					position += v.Item2;
@@ -133,11 +142,11 @@ namespace BoxRendererTest
 				{
 					// Draw shadow
 					paint.Color = shadowColor;
-					canvas.DrawRect(new RectF(position + offset, margin + offset, position + offset + v.Item2, this.Height - margin + offset), paint);
+					canvas.DrawRect(new RectF(position + offset, margin + offset, position + offset + v.Item2, this.Height - margin - paint.TextSize + offset), paint);
 
 					//Draw bar
 					paint.Color = barColor;
-					canvas.DrawRect(new RectF(v.Item3 == 0 ? position : position + offset, margin, position + v.Item2, this.Height - margin), paint);
+					canvas.DrawRect(new RectF(v.Item3 == 0 ? position : position + offset, margin, position + v.Item2, this.Height - paint.TextSize - margin), paint);
 
 					position += v.Item2;
 				}

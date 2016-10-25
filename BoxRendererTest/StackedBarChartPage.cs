@@ -57,8 +57,8 @@ namespace BoxRendererTest
 
 			var layout = new AbsoluteLayout();
 
-			layout.Children.Add(chart, new Rectangle(0, 0, 1, .1), AbsoluteLayoutFlags.All);
-			layout.Children.Add(list, new Rectangle(0, 1, 1, .9), AbsoluteLayoutFlags.All);
+			layout.Children.Add(chart, new Rectangle(0, 0, 1, .12), AbsoluteLayoutFlags.All);
+			layout.Children.Add(list, new Rectangle(0, 1, 1, .88), AbsoluteLayoutFlags.All);
 
 			this.Content = layout;
 		}
