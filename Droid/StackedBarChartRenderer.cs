@@ -67,26 +67,24 @@ namespace BoxRendererTest
 		{
 			base.OnDraw(canvas);
 
+			var element = (StackedBarChartView)this.Element;
+			
 			var density = Resources.DisplayMetrics.Density;
-			var margin = 15 * density;
+			var margin = element.Options.Margin * density;
 
-			var backgroundColor = Color.ParseColor("#2CBCEB");
-			var shadowColor = Color.ParseColor("#1A7596");
-			var barColor = Color.White;
-			var markerColor = Color.White;
+			var backgroundColor = element.Options.BackgroundColor.ToAndroid();
+			var shadowColor = element.Options.ShadowColor.ToAndroid();
+			var barColor = element.Options.BarColor.ToAndroid();
+			var markerColor = element.Options.MarkerColor.ToAndroid();
 
 			// Set paint text properties
 			paint.TextAlign = Paint.Align.Center;
-			paint.TextSize = 14 * density;
-
-
-			var element = (StackedBarChartView)this.Element;
+			paint.TextSize = element.Options.TextSize * density;
 
 			var data = element.Data;
 
 			var k = (this.Width - 2 * margin) / data.Sum(i => i.Value);
 			var values = data.Select((i, index) => Tuple.Create(i, (float)(i.Value * k), index)).ToList();
-
 
 			var position = margin;
 

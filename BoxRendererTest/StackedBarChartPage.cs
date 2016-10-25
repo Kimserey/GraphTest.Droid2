@@ -10,6 +10,26 @@ namespace BoxRendererTest
 		public double Value { get; set; }
 	}
 
+	public class StackedBarOptions
+	{ 
+		public float Margin { get; set; }
+		public Color BackgroundColor { get; set; }
+		public Color ShadowColor { get; set; }
+		public Color BarColor { get; set; }
+		public Color MarkerColor { get; set; }
+		public int TextSize { get; set; }
+
+		public StackedBarOptions()
+		{
+			this.Margin = 15;
+			this.BackgroundColor = Color.FromHex("#2CBCEB");
+			this.ShadowColor = Color.FromHex("#1A7596");
+			this.BarColor = Color.White;
+			this.MarkerColor = Color.White;
+			this.TextSize = 14;
+		}
+	}
+
 	public class StackedBarChartView : BoxView
 	{
 		public static readonly BindableProperty DataProperty =
@@ -22,6 +42,19 @@ namespace BoxRendererTest
 		public IList<StackedBarDataItem> Data
 		{
 			get { return (IList<StackedBarDataItem>)GetValue(DataProperty); }
+			set { SetValue(DataProperty, value); }
+		}
+
+		public static readonly BindableProperty OptionsProperty =
+			  BindableProperty.Create(
+				  propertyName: "Options",
+				  returnType: typeof(StackedBarOptions),
+				  declaringType: typeof(StackedBarChartView),
+		          defaultValue: new StackedBarOptions());
+
+		public StackedBarOptions Options
+		{
+			get { return (StackedBarOptions)GetValue(OptionsProperty); }
 			set { SetValue(DataProperty, value); }
 		}
 	}
