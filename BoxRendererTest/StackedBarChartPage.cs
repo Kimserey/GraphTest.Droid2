@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
 using Xamarin.Forms;
@@ -36,14 +37,15 @@ namespace BoxRendererTest
 	{
 		public static readonly BindableProperty DataProperty =
   			BindableProperty.Create(
-			  propertyName: "Data",
-			  returnType: typeof(IList<StackedBarDataItem>),
-			  declaringType: typeof(StackedBarChartView),
-			  defaultValue: new List<StackedBarDataItem>());
+				propertyName: "Data",
+				returnType: typeof(ObservableCollection<StackedBarDataItem>),
+				declaringType: typeof(StackedBarChartView),
+				defaultValue: new ObservableCollection<StackedBarDataItem>(),
+				defaultBindingMode: BindingMode.TwoWay);
 
-		public IList<StackedBarDataItem> Data
+		public ObservableCollection<StackedBarDataItem> Data
 		{
-			get { return (IList<StackedBarDataItem>)GetValue(DataProperty); }
+			get { return (ObservableCollection<StackedBarDataItem>)GetValue(DataProperty); }
 			set { SetValue(DataProperty, value); }
 		}
 
@@ -65,26 +67,43 @@ namespace BoxRendererTest
 	{
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		List<StackedBarDataItem> items = new List<StackedBarDataItem>();
+		ObservableCollection<StackedBarDataItem> items = new ObservableCollection<StackedBarDataItem>();
+		IEnumerable<StackedBarDataItem> chartData;
 
 		public StackedBarChartPageViewModel()
 		{
 			items =
-				new List<StackedBarDataItem> {
+				new ObservableCollection<StackedBarDataItem> {
 						new StackedBarDataItem { Name = "Apples", Value = 90 },
 						new StackedBarDataItem { Name = "Bananas", Value = 32 },
 						new StackedBarDataItem { Name = "Carrots", Value = 100 },
 						new StackedBarDataItem { Name = "Oranges", Value = 10 }
 				};
 
+			chartData = items;
+
 			this.AddItemCommand = new Command(() =>
 				{
 					items.Add(new StackedBarDataItem { Name = "New one", Value = 10 });
-					PropertyChanged(this, new PropertyChangedEventArgs("Data"));
+					chartData = items;
 				});
 		}
 
-		public List<StackedBarDataItem> Data
+		public IEnumerable<StackedBarDataItem> ChartData
+		{
+			get
+			{
+				return chartData;
+			}
+
+			set
+			{
+				chartData = value;
+				PropertyChanged(this, new PropertyChangedEventArgs("ChartData"));
+			}
+		}
+
+		public ObservableCollection<StackedBarDataItem> Data
 		{
 			get
 			{
@@ -98,7 +117,7 @@ namespace BoxRendererTest
 			}
 		}
 
-		public ICommand AddItemCommand { protected set; get; }
+		public ICommand AddItemCommand { get; set; }
 
 	}
 
@@ -113,7 +132,7 @@ namespace BoxRendererTest
 			var list = new ListView { ItemTemplate = new DataTemplate(typeof(TextCell)) };
 			var chart = new StackedBarChartView();
 
-			var button = new Button { Text = "Add random" };
+			var button = new Button { Text = "Add random item" };
 
 			var layout = new AbsoluteLayout();
 			layout.Children.Add(chart, new Rectangle(0, 0, 1, .12), AbsoluteLayoutFlags.All);
@@ -124,7 +143,9 @@ namespace BoxRendererTest
 			list.SetBinding(ListView.ItemsSourceProperty, "Data");
 			list.ItemTemplate.SetBinding(TextCell.TextProperty, "Name");
 			list.ItemTemplate.SetBinding(TextCell.DetailProperty, "Value");
-			chart.SetBinding(StackedBarChartView.DataProperty, "Data");
+			chart.SetBinding(StackedBarChartView.DataProperty, "ChartData");
+
+			chart.SetBinding(StackedBarChartView.WidthRequestProperty, "Width");
 
 			button.SetBinding(Button.CommandProperty, "AddItemCommand");
 		}
