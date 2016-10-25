@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Input;
 using Xamarin.Forms;
 
 namespace BoxRendererTest
@@ -11,7 +13,7 @@ namespace BoxRendererTest
 	}
 
 	public class StackedBarOptions
-	{ 
+	{
 		public float Margin { get; set; }
 		public Color BackgroundColor { get; set; }
 		public Color ShadowColor { get; set; }
@@ -50,7 +52,7 @@ namespace BoxRendererTest
 				  propertyName: "Options",
 				  returnType: typeof(StackedBarOptions),
 				  declaringType: typeof(StackedBarChartView),
-		          defaultValue: new StackedBarOptions());
+				  defaultValue: new StackedBarOptions());
 
 		public StackedBarOptions Options
 		{
@@ -59,13 +61,15 @@ namespace BoxRendererTest
 		}
 	}
 
-	public class StackedBarChartPage : ContentPage
+	class StackedBarChartPageViewModel : INotifyPropertyChanged
 	{
-		public StackedBarChartPage()
-		{
-			this.Title = "Stacked bar";
+		public event PropertyChangedEventHandler PropertyChanged;
 
-			var data =
+		List<StackedBarDataItem> items = new List<StackedBarDataItem>();
+
+		public StackedBarChartPageViewModel()
+		{
+			items =
 				new List<StackedBarDataItem> {
 						new StackedBarDataItem { Name = "Apples", Value = 90 },
 						new StackedBarDataItem { Name = "Bananas", Value = 32 },
@@ -73,27 +77,52 @@ namespace BoxRendererTest
 						new StackedBarDataItem { Name = "Oranges", Value = 10 }
 				};
 
-			var list =
-				new ListView
+			this.AddItemCommand = new Command(() =>
 				{
-					ItemsSource = data,
-					ItemTemplate = new DataTemplate(typeof(TextCell))
-				};
+					items.Add(new StackedBarDataItem { Name = "New one", Value = 10 });
+					PropertyChanged(this, new PropertyChangedEventArgs("Data"));
+				});
+		}
 
-			list.ItemTemplate.SetBinding(TextCell.TextProperty, "Name");
-			list.ItemTemplate.SetBinding(TextCell.DetailProperty, "Value");
+		public List<StackedBarDataItem> Data
+		{
+			get
+			{
+				return items;
+			}
 
-			var chart =
-				new StackedBarChartView {
-					Data = data
-				};
+			set
+			{
+				items = value;
+				PropertyChanged(this, new PropertyChangedEventArgs("Data"));
+			}
+		}
+
+		public ICommand AddItemCommand { protected set; get; }
+
+	}
+
+	public class StackedBarChartPage : ContentPage
+	{
+		public StackedBarChartPage()
+		{
+			this.Title = "Stacked bar";
+
+			this.BindingContext = new StackedBarChartPageViewModel();
+
+			var list = new ListView { ItemTemplate = new DataTemplate(typeof(TextCell)) };
+			var chart = new StackedBarChartView();
 
 			var layout = new AbsoluteLayout();
-
 			layout.Children.Add(chart, new Rectangle(0, 0, 1, .12), AbsoluteLayoutFlags.All);
 			layout.Children.Add(list, new Rectangle(0, 1, 1, .88), AbsoluteLayoutFlags.All);
-
 			this.Content = layout;
+
+			list.SetBinding(ListView.ItemsSourceProperty, "Data");
+			list.ItemTemplate.SetBinding(TextCell.TextProperty, "Name");
+			list.ItemTemplate.SetBinding(TextCell.DetailProperty, "Value");
+			chart.SetBinding(StackedBarChartView.DataProperty, "Data");
 		}
 	}
 }
+
