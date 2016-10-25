@@ -113,15 +113,20 @@ namespace BoxRendererTest
 			var list = new ListView { ItemTemplate = new DataTemplate(typeof(TextCell)) };
 			var chart = new StackedBarChartView();
 
+			var button = new Button { Text = "Add random" };
+
 			var layout = new AbsoluteLayout();
 			layout.Children.Add(chart, new Rectangle(0, 0, 1, .12), AbsoluteLayoutFlags.All);
 			layout.Children.Add(list, new Rectangle(0, 1, 1, .88), AbsoluteLayoutFlags.All);
+			layout.Children.Add(button, new Rectangle(0, 1, 1, .10), AbsoluteLayoutFlags.All);
 			this.Content = layout;
 
 			list.SetBinding(ListView.ItemsSourceProperty, "Data");
 			list.ItemTemplate.SetBinding(TextCell.TextProperty, "Name");
 			list.ItemTemplate.SetBinding(TextCell.DetailProperty, "Value");
 			chart.SetBinding(StackedBarChartView.DataProperty, "Data");
+
+			button.SetBinding(Button.CommandProperty, "AddItemCommand");
 		}
 	}
 }
