@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -85,7 +86,7 @@ namespace BoxRendererTest
 			this.AddItemCommand = new Command(() =>
 				{
 					items.Add(new StackedBarDataItem { Name = "New one", Value = 10 });
-					chartData = items;
+					this.ChartData = items.ToList();
 				});
 		}
 
@@ -144,8 +145,6 @@ namespace BoxRendererTest
 			list.ItemTemplate.SetBinding(TextCell.TextProperty, "Name");
 			list.ItemTemplate.SetBinding(TextCell.DetailProperty, "Value");
 			chart.SetBinding(StackedBarChartView.DataProperty, "ChartData");
-
-			chart.SetBinding(StackedBarChartView.WidthRequestProperty, "Width");
 
 			button.SetBinding(Button.CommandProperty, "AddItemCommand");
 		}
