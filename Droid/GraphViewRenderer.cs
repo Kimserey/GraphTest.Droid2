@@ -254,8 +254,13 @@ namespace BoxRendererTest
 			}
 
 
+			/*****************************************
+			 * 
+			 *  PART 3 - Draw lines and markers
+			 * 
+			 *****************************************/
 
-			//// Draws line shadow
+			// Draws line shadow
 			paint.Reset();
 			paint.StrokeWidth = lineStrokeWidth;
 			paint.Color = lineShadowColor;
@@ -296,6 +301,13 @@ namespace BoxRendererTest
 					radius: markerDefaultRadius,
 					paint: paint);
 			}
+
+
+			/*****************************************
+			 * 
+			 *  PLUS - Draw text
+			 * 
+			 *****************************************/
 
 			// Draws markers
 			paint.Reset();
