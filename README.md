@@ -6,6 +6,7 @@ This is a line chart built with Xamarin.Forms with a custom renderer on Xamarin.
 
 ![chart](https://raw.githubusercontent.com/Kimserey/GraphTest.Droid2/master/img/chartgif.gif)
 
+![line1](https://raw.githubusercontent.com/Kimserey/GraphTest.Droid2/master/img/plot1.png)
 
 ## Stacked bar chart
 
