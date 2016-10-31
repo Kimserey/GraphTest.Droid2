@@ -98,11 +98,22 @@ namespace BoxRendererTest
 			var markerDefaultRadius = options.MarkerDefaultRadius * density;
 			var markerSelectedRadius = options.MarkerSelectedRadius * density;
 			var labelTextSize = options.LabelTextSize * density;
+			var sectionCount = 4;
+
+			/*****************************************
+			 * 
+			 *  PART 1 - Draw background and bands
+			 * 
+			 *****************************************/
+
+			// Draws background
+			paint.Color = Color.ParseColor("#2CBCEB");
+			canvas.DrawRect(new Rect(0, 0, this.Width, this.Height), paint);
 
 			// Set text size to measure text
 			paint.TextSize = labelTextSize;
 
-			var ceilingValue = (int)Math.Ceiling(items.Max(i => i.Y) / sectionHeight) * sectionHeight;
+			var ceilingValue = Math.Ceiling(items.Max(i => i.Y) / 50.0) * 50.0;
 
 			// Computes plot boundaries
 			// - Left: left padding + maximum text lenght + 2dp
@@ -117,18 +128,19 @@ namespace BoxRendererTest
 			var plotWidth = plotBoundaries.Right - plotBoundaries.Left;
 			var plotHeight = plotBoundaries.Bottom - plotBoundaries.Top;
 
-			var horizontalSection = new Section
+			var verticalSection = new Section
 			{
 				Width = plotWidth / items.Count(),
 				Count = items.Count()
 			};
-			var verticalSection = new Section
+			var horizontalSection = new Section
 			{
-				Max = ceilingValue,
-				Count = (int)Math.Ceiling(items.Select(i => i.Y).Max() / sectionHeight),
-				Width = plotHeight / ((int)Math.Ceiling(items.Select(i => i.Y).Max() / sectionHeight))
+				Max = (float)ceilingValue,
+				Count = sectionCount,
+				Width = plotHeight / sectionCount
 			};
 
+			// Special function not present in the tutorial
 			// Darken plot if xSelect within boundaries
 			if (plotBoundaries.Left <= xSelect && xSelect <= plotBoundaries.Right)
 			{
@@ -138,43 +150,112 @@ namespace BoxRendererTest
 				Darken(ref lineColor);
 			}
 
-			// Calculates all the data coordinates
-			var points = new List<Tuple<float, float, double, bool>>();
-			foreach (var l in items.Select((l, index) => Tuple.Create(l.X, l.Y, index)))
-			{
-				var x = horizontalSection.Width * (l.Item3 + 0.5f) + plotBoundaries.Left;
-				var y = (float)l.Item2 * plotHeight / verticalSection.Max;
-
-				points.Add(
-					Tuple.Create(
-						x,
-						plotBoundaries.Bottom - y,
-						l.Item2,
-						plotBoundaries.Left + l.Item3 * horizontalSection.Width <= xSelect
-						&& xSelect < plotBoundaries.Left + (l.Item3 + 1) * horizontalSection.Width
-					));
-			}
-
-			// Draws background
-			paint.Color = backgroundColor;
-			canvas.DrawRect(new Rect(0, 0, this.Width, this.Height), paint);
-
 			// Draws horizontal bands
 			paint.Reset();
 			paint.Color = bandsColor;
-			for (int i = verticalSection.Count - 1; i >= 0; i = i - 2)
+			for (int i = horizontalSection.Count - 1; i >= 0; i = i - 2)
 			{
-				var y = plotBoundaries.Bottom - verticalSection.Width * i;
+				var y = plotBoundaries.Bottom - horizontalSection.Width * i;
 
 				canvas.DrawRect(
 					left: plotBoundaries.Left,
-					top: y - verticalSection.Width,
+					top: y - horizontalSection.Width,
 					right: plotBoundaries.Right,
 					bottom: y,
 					paint: paint);
 			}
 
-			// Draws line shadow
+			/*****************************************
+			 * 
+			 *  PART 2 - Draw axis and labels
+			 * 
+			 *****************************************/
+
+			// Draws X and Y axis lines
+			paint.Reset();
+			paint.StrokeWidth = axisStrokeWidth;
+			paint.Color = lineColor;
+			canvas.DrawLine(
+				plotBoundaries.Left,
+				plotBoundaries.Bottom,
+				plotBoundaries.Right,
+				plotBoundaries.Bottom,
+				paint);
+			canvas.DrawLine(
+				plotBoundaries.Left,
+				plotBoundaries.Top,
+				plotBoundaries.Left,
+				plotBoundaries.Bottom,
+				paint);
+
+
+			//// Calculates all the data coordinates
+			var points = new List<Tuple<float, float, string, double, bool>>();
+			foreach (var l in items.Select((l, index) => Tuple.Create(l.X, l.Y, index)))
+			{
+				var x = verticalSection.Width * (l.Item3 + 0.5f) + plotBoundaries.Left;
+				var y = (float)l.Item2 * plotHeight / horizontalSection.Max;
+
+				points.Add(
+					Tuple.Create(
+						x,
+						plotBoundaries.Bottom - y,
+						l.Item1,
+						l.Item2,
+						plotBoundaries.Left + l.Item3 * verticalSection.Width <= xSelect
+						&& xSelect < plotBoundaries.Left + (l.Item3 + 1) * verticalSection.Width
+					));
+			}
+
+			// Draws X axis labels
+			paint.Reset();
+			paint.TextAlign = Paint.Align.Center;
+			paint.TextSize = labelTextSize;
+			foreach (var p in points)
+			{
+				if (p.Item5)
+				{
+					paint.Color = markerTextColor;
+
+					canvas.DrawText(
+						text: p.Item3,
+						x: p.Item1,
+						y: plotBoundaries.Bottom + paint.TextSize + xAxisLabelOffset,
+						paint: paint);
+				}
+				else
+				{
+					paint.Color = lineColor;
+
+					canvas.DrawText(
+						text: p.Item3,
+						x: p.Item1,
+						y: plotBoundaries.Bottom + paint.TextSize + xAxisLabelOffset,
+						paint: paint);
+				}
+			}
+
+			// Draw Y axis labels
+			// The 1.5f * density on y is a hack to get the label aligned vertically.
+			// It will need adjustements if the font size changes.
+			paint.Reset();
+			paint.TextAlign = Paint.Align.Right;
+			paint.TextSize = labelTextSize;
+			paint.Color = lineColor;
+			for (int i = 0; i < horizontalSection.Count; i++)
+			{
+				var y = plotBoundaries.Bottom - horizontalSection.Width * i;
+
+				canvas.DrawText(
+					text: (i * sectionHeight).ToString(),
+					x: plotBoundaries.Left - yAxisLabelOffset,
+					y: y - (paint.Ascent() / 2f + 1.5f * density),
+					paint: paint);
+			}
+
+
+
+			//// Draws line shadow
 			paint.Reset();
 			paint.StrokeWidth = lineStrokeWidth;
 			paint.Color = lineShadowColor;
@@ -195,7 +276,7 @@ namespace BoxRendererTest
 					paint: paint);
 			}
 
-			// Draws main line
+			//// Draws main line
 			paint.Reset();
 			paint.StrokeWidth = lineStrokeWidth;
 			paint.Color = lineColor;
@@ -216,76 +297,11 @@ namespace BoxRendererTest
 					paint: paint);
 			}
 
-			// Draws X axis labels
-			paint.Reset();
-			paint.TextAlign = Paint.Align.Center;
-			paint.TextSize = labelTextSize;
-			foreach (var l in items.Select((GraphData l, int index) => Tuple.Create(l.X, index)))
-			{
-				var x = horizontalSection.Width * (l.Item2 + 0.5f) + plotBoundaries.Left;
-
-				if (points[l.Item2].Item4)
-				{
-					paint.Color = markerTextColor;
-
-					canvas.DrawText(
-						text: l.Item1,
-						x: x,
-						y: plotBoundaries.Bottom + paint.TextSize + xAxisLabelOffset,
-						paint: paint);
-				}
-				else
-				{
-					paint.Color = lineColor;
-
-					canvas.DrawText(
-						text: l.Item1,
-						x: x,
-						y: plotBoundaries.Bottom + paint.TextSize + xAxisLabelOffset,
-						paint: paint);
-				}
-			}
-
-			// Draw Y axis labels
-			// The 1.5f * density on y is a hack to get the label aligned vertically.
-			// It will need adjustements if the font size changes.
-			paint.Reset();
-			paint.TextAlign = Paint.Align.Right;
-			paint.TextSize = labelTextSize;
-			paint.Color = lineColor;
-			for (int i = 0; i < verticalSection.Count; i++)
-			{
-				var y = plotBoundaries.Bottom - verticalSection.Width * i;
-
-				canvas.DrawText(
-					text: (i * sectionHeight).ToString(),
-					x: plotBoundaries.Left - yAxisLabelOffset,
-					y: y - (paint.Ascent() / 2f + 1.5f * density),
-					paint: paint);
-			}
-
-			// Draws X and Y axis lines
-			paint.Reset();
-			paint.StrokeWidth = axisStrokeWidth;
-			paint.Color = lineColor;
-			canvas.DrawLine(
-				plotBoundaries.Left,
-				plotBoundaries.Bottom,
-				plotBoundaries.Right,
-				plotBoundaries.Bottom,
-				paint);
-			canvas.DrawLine(
-				plotBoundaries.Left,
-				plotBoundaries.Top,
-				plotBoundaries.Left,
-				plotBoundaries.Bottom,
-				paint);
-
 			// Draws markers
 			paint.Reset();
 			for (int i = 0; i < points.Count; i++)
 			{
-				if (points[i].Item4)
+				if (points[i].Item5)
 				{
 					paint.Color = markerTextShadowColor;
 					canvas.DrawCircle(
@@ -295,7 +311,7 @@ namespace BoxRendererTest
 						paint: paint);
 				}
 
-				if (points[i].Item4)
+				if (points[i].Item5)
 				{
 					paint.Color = markerTextColor;
 					canvas.DrawCircle(
@@ -315,9 +331,9 @@ namespace BoxRendererTest
 			paint.Color = markerTextShadowColor;
 			for (int i = 0; i < points.Count; i++)
 			{
-				var text = points[i].Item3.ToString();
+				var text = points[i].Item4.ToString();
 
-				if (points[i].Item4)
+				if (points[i].Item5)
 				{
 					paint.Color = markerTextShadowColor;
 
@@ -358,3 +374,4 @@ namespace BoxRendererTest
 		}
 	}
 }
+
